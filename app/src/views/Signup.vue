@@ -1,12 +1,6 @@
 <template>
     <section>
         <h1>Регистрация</h1>
-        <div class="error-block" v-if="errorMessage">
-            <div class="error" v-if="errorMessage">{{errorMessage}}</div>
-            <ul v-if="this.errors.length > 0">
-                <li class="error-list" v-for="error in errors">{{error}}</li>
-            </ul>
-        </div>
         <form @submit.prevent="submitForm">
             <Input v-model="formData.login" :attributes="inputAttributes.login"/>
             <Input v-model="formData.name" :attributes="inputAttributes.name"/>
@@ -26,7 +20,6 @@
     import router from "../router";
     import store from "../store";
     import {mapState} from "vuex";
-    // import {getCookie} from '../lib/cookies';
 
     export default {
         name: "Signup",
@@ -41,8 +34,6 @@
         },
         data() {
             return {
-                errorMessage: "",
-                errors: [],
                 inputAttributes: {
                     login: {
                         label: "Логин",

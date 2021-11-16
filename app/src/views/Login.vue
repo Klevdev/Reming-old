@@ -1,12 +1,6 @@
 <template>
     <section>
         <h1>Вход</h1>
-        <div class="error-block" v-if="errorMessage">
-            <div class="error" v-if="errorMessage">{{errorMessage}}</div>
-            <ul v-if="this.errors.length > 0">
-                <li class="error-list" v-for="error in errors">{{error}}</li>
-            </ul>
-        </div>
         <form @submit.prevent="submitForm">
             <Input v-model="formData.login" :attributes="inputAttributes.login"/>
             <Input v-model="formData.password" :attributes="inputAttributes.password"/>
@@ -37,8 +31,6 @@
         },
         data() {
             return {
-                errorMessage: "",
-                errors: [],
                 formData: {
                     login: null,
                     password: null,

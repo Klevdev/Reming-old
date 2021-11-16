@@ -1,6 +1,7 @@
 <template>
     <Header @toggle-sidebar="toggleSidebar()"/>
     <Sidebar :collapsed="sidebarCollapsed"/>
+
     <router-view/>
 </template>
 
