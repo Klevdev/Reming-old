@@ -22,6 +22,7 @@ app.use((req, res, next) => {
 
 /* - - - Роуты: - - - */
 app.use("/user", require('./routes/UserRoutes'));
+app.use("/set", require('./routes/SetRoutes'));
 
 app.listen(3000);
 console.log("Server is listening on http://localhost:3000");

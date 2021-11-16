@@ -68,6 +68,23 @@ const routes = [
         meta: {
             title: 'Регистрация'
         }
+    },
+    {
+        path: '/editor',
+        name: 'Editor',
+        beforeEnter: (to, from, next) => {
+            if (!store.state.userLoggedIn) {
+                next("/login");
+            } else {
+                next();
+            }
+        },
+        component: function () {
+            return import('../views/Editor')
+        },
+        meta: {
+            title: 'Создание набора'
+        }
     }
 ]
 

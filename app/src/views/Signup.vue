@@ -1,5 +1,5 @@
 <template>
-    <main>
+    <section>
         <h1>Регистрация</h1>
         <div class="error-block" v-if="errorMessage">
             <div class="error" v-if="errorMessage">{{errorMessage}}</div>
@@ -18,7 +18,7 @@
         <p>
             <router-link to="/login">Войти</router-link>
         </p>
-    </main>
+    </section>
 </template>
 
 <script>
@@ -32,9 +32,6 @@
         name: "Signup",
         components: {
             Input,
-        },
-        created() {
-            console.log(this.formDisabled);
         },
         computed: {
             ...mapState(['formHasError'])
@@ -154,7 +151,7 @@
 </script>
 
 <style scoped>
-    main {
+    section {
         display: flex;
         flex-direction: column;
         align-items: center;

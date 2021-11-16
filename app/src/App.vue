@@ -19,6 +19,7 @@
     body {
         background-color: #F3F3F3;
         overflow-x: hidden;
+        margin-top: 75px; /*компенация хэдера*/
     }
 
     *:focus {
@@ -52,7 +53,7 @@
         font-family: "Nunito Sans", sans-serif;
     }
 
-    button, button[type='submit'] {
+    button, button[type='submit'], button[type='button'] {
         background-color: #4285F4;
         border: none;
         border-radius: 3px;

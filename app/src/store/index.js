@@ -1,4 +1,5 @@
 import { createStore } from "vuex";
+import router from "../router";
 
 import {setCookie} from "../lib/cookies";
 
@@ -27,11 +28,9 @@ export default createStore({
         //     setCookie('name', '');
         // },
         formErrorOccurred(state) {
-            console.log("-");
             state.formHasError = true;
         },
         formErrorSolved(state) {
-            console.log("+");
             state.formHasError = false;
         }
     },
@@ -57,8 +56,27 @@ export default createStore({
                 context.state.userName = '';
                 setCookie('auth', '');
                 setCookie('name', '');
+                await router.push('/');
             }
         },
+        async sendSet(context, set) {
+            const res = await fetch('http://localhost:3000/set/new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    auth: context.state.userToken,
+                    ...set
+                }),
+            });
+            let response = await res.json();
+            if (response.hasOwnProperty('error')) {
+                console.error('Error');
+            } else {
+                await router.push('/');
+            }
+        }
     }
 });
 

@@ -59,12 +59,12 @@ router.post('/signup', async(req, res) => {
     const rules = {
         login: {
             required: true,
-            lengthRange: [4, 30],
+            lengthRange: [5, 30],
             restrictedChars: '!#$^*(){};:|/'
         },
         name: {
             required: true,
-            lengthRange: [3, 30],
+            lengthRange: [2, 30],
             restrictedChars: '!#$^*(){};:|/'
         },
         email: {

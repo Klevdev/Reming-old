@@ -20,8 +20,12 @@ function validateRequired(request, rules) {
         }
     }
     required.forEach(requiredKey => {
-        if (!request.hasOwnProperty(requiredKey) || request[requiredKey] === '') {
+        if (!request.hasOwnProperty(requiredKey)) {
             errors.push(requiredKey);
+        } else if (request[requiredKey].hasOwnProperty('trim')) {
+            if (request[requiredKey].trim() === '') {
+                errors.push(requiredKey);
+            }
         }
     });
     return errors.length > 0 ? { error: "Ошибка запроса: отсутствуют необходимые поля", errors: errors } : { ok: 1 };

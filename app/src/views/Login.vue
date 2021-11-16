@@ -1,5 +1,5 @@
 <template>
-    <main>
+    <section>
         <h1>Вход</h1>
         <div class="error-block" v-if="errorMessage">
             <div class="error" v-if="errorMessage">{{errorMessage}}</div>
@@ -15,7 +15,7 @@
         <p>
             <router-link to="/signup">Зарегистрироваться</router-link>
         </p>
-    </main>
+    </section>
 </template>
 
 <script>
@@ -107,7 +107,7 @@
 </script>
 
 <style scoped>
-    main {
+    section {
         display: flex;
         flex-direction: column;
         align-items: center;

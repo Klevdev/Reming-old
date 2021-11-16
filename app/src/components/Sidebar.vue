@@ -1,9 +1,8 @@
 <template>
     <nav :class="collapsed ? 'open' : 'collapsed'">
-        <router-link to="/">Home</router-link>
-        <router-link to="/login">Log In</router-link>
-        <router-link to="/signup">Sign Up</router-link>
-        <router-link to="/about">About</router-link>
+        <router-link to="/">Главная</router-link>
+        <router-link to="/editor">Конструктор</router-link>
+        <router-link to="/about">О сайте</router-link>
     </nav>
 </template>
 
@@ -24,8 +23,8 @@
         /*box-shadow: 0 0 10px #2c3e5033;*/
         width: $sidebarWidth;
         height: calc(100vh - 55px);
-        position: absolute;
-        /*top: 0;*/
+        position: fixed;
+        top: 55px;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;

@@ -29,7 +29,7 @@ const _validators = {
 };
 
 function _required(value) {
-    return value ? true : {error: "Поле должно быть заполнено"};
+    return value.trim() ? true : {error: "Поле должно быть заполнено"};
 }
 
 function _lengthRange(value, lengthRange) {
