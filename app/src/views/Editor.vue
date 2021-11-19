@@ -4,21 +4,21 @@
         <form @submit.prevent="submitForm">
             <Input v-model="formData.title" :attributes="inputAttributes.title"/>
             <label for="description">Описание</label>
-            <textarea v-model="formData.description" name="description" id="description" placeholder="Карточки для подготовки к экзамену"></textarea>
+            <textarea v-model="formData.description" name="description" id="description" placeholder="Карточки для подготовки к экзамену" maxlength="100"></textarea>
             <Checkbox v-model="formData.isPublic" :attributes="inputAttributes.isPublic"/>
             <p>Карточки набора</p>
             <div class="cards">
                 <div class="card" v-for="(card, index) in formData.cards" :key="index">
                     <div style="width: 15px">{{index+1}}</div>
                     <div>
-                        <textarea v-model="formData.cards[index].question" placeholder="{{card.question}}"></textarea>
+                        <textarea v-model="formData.cards[index].question" placeholder="{{card.question}}" maxlength="100"></textarea>
                     </div>
                     <div>
-                        <textarea v-model="formData.cards[index].answer" placeholder="{{card.answer}}"></textarea>
+                        <textarea v-model="formData.cards[index].answer" placeholder="{{card.answer}}" maxlength="100"></textarea>
                     </div>
                     <div class="card-btns">
-                        <button class="btn-remove-card" @click="removeCard(index)"></button>
-                        <button class="btn-flip-card" @click="flipCard(index)"></button>
+                        <button type="button" class="btn-remove-card" @click="removeCard(index)"></button>
+                        <button type="button" class="btn-flip-card" @click="flipCard(index)"></button>
                         <input type="checkbox" v-model="formData.cards[index].isFlippable">
                     </div>
                 </div>
@@ -32,9 +32,8 @@
 <script>
     import Input from '@/components/Input';
     import Checkbox from '@/components/Checkbox';
-    import router from "../router";
     import store from "../store";
-    import {mapState, mapActions} from "vuex";
+    import {mapState} from "vuex";
 
     export default {
         name: "Editor",
@@ -87,7 +86,6 @@
                 this.formData.cards[index].question = this.formData.cards[index].answer;
                 this.formData.cards[index].answer = firstSide;
             },
-            // ...mapActions(['sendSet'])
         },
         computed: {
             ...mapState(['formHasError'])
@@ -176,23 +174,4 @@
         }
     }
 
-    .error-block {
-        max-width: 250px;
-        padding: 20px 25px;
-        background-color: #FF000088;
-        border-radius: 5px;
-        box-shadow: 0 0 10px #2c3e5033, 0 20px 20px #2c3e5011;
-    }
-
-    .error {
-        font-size: .8em;
-        text-align: left;
-        font-weight: bold;
-    }
-
-    .error-list {
-        font-size: .8em;
-        list-style: none;
-        text-align: left;
-    }
 </style>

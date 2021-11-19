@@ -1,11 +1,55 @@
 <template>
     <Header @toggle-sidebar="toggleSidebar()"/>
     <Sidebar :collapsed="sidebarCollapsed"/>
-
+    <Popup/>
+<!--    <button style="background-color: #A1C4FD;" @click="showpopup({message: 'А вы знали, что каждые 60 секунд в Африке проходит одна минута?', type: 'info'})">pop</button>-->
+<!--    <button style="background-color: #E95252;" @click="showpopup({message: 'Ошибка стоп 0x0001235A', type: 'error'})">pop</button>-->
+<!--    <button style="background-color: #3EAF7C;" @click="showpopup({message: 'Never gonna give you up, never gonna gonna let you down, never gonna turn around and desert you Never gonna give you up, never gonna gonna let you down, never gonna turn around and desert you Never gonna give you up, never gonna gonna let you down, never gonna turn around and desert you', type: 'success'})">pop</button>-->
     <router-view/>
 </template>
 
+<script>
+    import Header from '@/components/Header';
+    import Sidebar from '@/components/Sidebar';
+    import Popup from '@/components/Popup';
+    import store from "./store";
+    import {getCookie} from "@/lib/cookies";
+
+    export default {
+        name: 'App',
+        components: {
+            Header,
+            Sidebar,
+            Popup
+        },
+        data() {
+            return {
+                sidebarCollapsed: false,
+            }
+        },
+        methods: {
+            toggleSidebar() {
+                this.sidebarCollapsed = !this.sidebarCollapsed;
+            },
+            showpopup(payload) {
+                store.commit('popupShow',payload)
+            }
+        },
+        mounted() {
+            let userAuthCookie = getCookie('auth');
+            if (userAuthCookie !== '' && userAuthCookie !== 'undefined' && userAuthCookie !== undefined) {
+                let userNameCookie = getCookie('name');
+                if (userNameCookie === '' || userNameCookie === undefined) {
+                    console.error('Missing username cookie');
+                }
+                store.commit('userLogIn', {auth: userAuthCookie, name: userNameCookie});
+            }
+        }
+    }
+</script>
+
 <style lang="scss">
+
     @font-face {
         font-family: 'Rubik';
         src: url("../public/fonts/Rubik/Rubik-VariableFont_wght.ttf") format('truetype');
@@ -70,38 +114,3 @@
     }
 
 </style>
-
-<script>
-    import Header from '@/components/Header.vue';
-    import Sidebar from '@/components/Sidebar.vue';
-    import store from "./store";
-    import {getCookie} from "@/lib/cookies";
-
-    export default {
-        name: 'App',
-        components: {
-            Header,
-            Sidebar,
-        },
-        data() {
-            return {
-                sidebarCollapsed: false,
-            }
-        },
-        methods: {
-            toggleSidebar() {
-                this.sidebarCollapsed = !this.sidebarCollapsed;
-            }
-        },
-        mounted() {
-            let userAuthCookie = getCookie('auth');
-            if (userAuthCookie !== '' && userAuthCookie !== 'undefined' && userAuthCookie !== undefined) {
-                let userNameCookie = getCookie('name');
-                if (userNameCookie === '' || userNameCookie === undefined) {
-                    console.error('Missing username cookie');
-                }
-                store.commit('userLogIn', {auth: userAuthCookie, name: userNameCookie});
-            }
-        }
-    }
-</script>

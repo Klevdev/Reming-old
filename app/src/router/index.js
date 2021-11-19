@@ -40,7 +40,11 @@ const routes = [
         name: 'Log in',
         beforeEnter: (to, from, next) => {
             if (store.state.userLoggedIn) {
-                next("/");
+                store.commit('popupShow',{
+                    type: 'error',
+                    message: 'Выйдите из аккаунта чтобы авторизироваться'
+                });
+                router.go(-1);
             } else {
                 next();
             }
@@ -57,7 +61,11 @@ const routes = [
         name: 'Sign up',
         beforeEnter: (to, from, next) => {
             if (store.state.userLoggedIn) {
-                next("/");
+                store.commit('popupShow',{
+                    type: 'error',
+                    message: 'Выйдите из аккаунта чтобы зарегистрироваться'
+                });
+                router.go(-1);
             } else {
                 next();
             }
@@ -74,6 +82,10 @@ const routes = [
         name: 'Editor',
         beforeEnter: (to, from, next) => {
             if (!store.state.userLoggedIn) {
+                store.commit('popupShow',{
+                    type: 'info',
+                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                });
                 next("/login");
             } else {
                 next();
@@ -85,7 +97,78 @@ const routes = [
         meta: {
             title: 'Создание набора'
         }
-    }
+    },
+    {
+        path: '/mymaterials',
+        name: 'Materials',
+        beforeEnter: (to, from, next) => {
+            if (!store.state.userLoggedIn) {
+                store.commit('popupShow',{
+                    type: 'info',
+                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                });
+                next("/login");
+            } else {
+                next();
+            }
+        },
+        component: function () {
+            return import('../views/Materials')
+        },
+        meta: {
+            title: 'Мои наборы'
+        }
+    },
+    {
+        path: '/material/:setId',
+        name: 'MaterialPage',
+        props: route => ({ setId: route.query.setId}),
+        beforeEnter: (to, from, next) => {
+            if (!store.state.userLoggedIn) {
+                store.commit('popupShow',{
+                    type: 'info',
+                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                });
+                next("/login");
+            } else {
+                next();
+            }
+        },
+        component: function () {
+            return import('../views/MaterialPage')
+        },
+        meta: {
+            title: 'Набор карточек'
+        }
+    },
+    {
+        path: '/study/:setId',
+        name: 'StudyPage',
+        props: route => ({ setId: route.query.setId}),
+        beforeEnter: (to, from, next) => {
+            if (!store.state.userLoggedIn) {
+                store.commit('popupShow',{
+                    type: 'info',
+                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                });
+                next("/login");
+            } else {
+                next();
+            }
+        },
+        component: function () {
+            return import('../views/Study')
+        },
+        meta: {
+            title: 'Прохождение набора'
+        }
+    },
+    // {
+    //     // will match everything
+    //     path: '*',
+    //     component: {template: "<h1>404</h1>"}
+    // }
+
 ]
 
 const router = createRouter({

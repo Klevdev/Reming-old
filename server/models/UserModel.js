@@ -42,7 +42,11 @@ async function authUser(token) {
         return { error: "Отсутсвует токен" };
     }
     const user = await findOne({ authToken: token });
-    return user;
+    if (user) {
+        return user;
+    } else {
+        return { error: "Пользователь не авторизован" }
+    }
 }
 
 async function login(request) {
@@ -116,6 +120,7 @@ async function generateAuthToken(userId) {
             .catch(err => console.error(err));
         // console.log(result);
         if (result === 0) {
+            console.log(userId);
             await collection.updateOne({ _id: userId }, {
                 $set: {
                     authToken: authToken

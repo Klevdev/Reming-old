@@ -33,11 +33,10 @@ router.post('/login', async(req, res) => {
 
     let result = await User.login(req.body);
 
+    console.log(result);
     if (result.hasOwnProperty('error')) {
-        return res.status(409).send(result);
+        return res.status(401).send(result);
     } else {
-        // console.log(result);
-        // res.cookie('auth', result.authToken, { maxAge: 900000, httpOnly: true });
         return res.send(result);
     }
 });
