@@ -134,7 +134,6 @@ export default createStore({
         async getSet(context, id) {
             const path = 'http://localhost:3000/set/view';
             const query = `?auth=${context.state.userToken}&id=${id}`;
-            // console.log(id);
             const res = await fetch(path+query, {
                 method: 'GET',
                 headers: {},
@@ -167,7 +166,6 @@ export default createStore({
             }
         },
         async saveStudyCards(context, params) {
-            // console.log(params.setId, params.cards);
             const path = 'http://localhost:3000/set/saveStudy';
             const res = await fetch(path, {
                 method: 'POST',
@@ -192,6 +190,26 @@ export default createStore({
                     message: 'Результат записан'
                 });
                 router.go(-1);
+            }
+        },
+        async deleteSet(context, id) {
+            const path = 'http://localhost:3000/set';
+            const query = `?auth=${context.state.userToken}&id=${id}`;
+            const res = await fetch(path+query, {
+                method: 'DELETE',
+                headers: {},
+            });
+            let response = await res.json();
+            if (response.hasOwnProperty('error')) {
+                this.commit('popupShow',{
+                    type: 'error',
+                    message: `Ошибка: ${response.error}`
+                });
+            } else {
+                this.commit('popupShow',{
+                    type: 'success',
+                    message: `Набор удалён`
+                });
             }
         },
     }

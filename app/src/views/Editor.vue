@@ -11,10 +11,10 @@
                 <div class="card" v-for="(card, index) in formData.cards" :key="index">
                     <div style="width: 15px">{{index+1}}</div>
                     <div>
-                        <textarea v-model="formData.cards[index].question" placeholder="{{card.question}}" maxlength="100"></textarea>
+                        <textarea v-model="formData.cards[index].question" placeholder="Лицевая сторона (вопрос)" maxlength="100"></textarea>
                     </div>
                     <div>
-                        <textarea v-model="formData.cards[index].answer" placeholder="{{card.answer}}" maxlength="100"></textarea>
+                        <textarea v-model="formData.cards[index].answer" placeholder="Обратная сторона (ответ)" maxlength="100"></textarea>
                     </div>
                     <div class="card-btns">
                         <button type="button" class="btn-remove-card" @click="removeCard(index)"></button>
@@ -24,16 +24,18 @@
                 </div>
             </div>
             <button type="button" @click="addCard">Добавить карточку</button>
-            <button type="submit" :disabled="formHasError">Создать</button>
+            <button type="submit" :disabled="formHasError">{{setId ? 'Подтвердить' : 'Создать' }}</button>
+            <button type="button" class="delete-btn" v-if="this.setId" @click="deleteSet">Удалить набор</button>
         </form>
     </section>
 </template>
 
 <script>
-    import Input from '@/components/Input';
-    import Checkbox from '@/components/Checkbox';
+    import Input from '../components/Input';
+    import Checkbox from '../components/Checkbox';
     import store from "../store";
     import {mapState} from "vuex";
+    import router from "../router";
 
     export default {
         name: "Editor",
@@ -47,7 +49,8 @@
                     title: "",
                     description: "",
                     isPublic: false,
-                    cards: []
+                    cards: [],
+                    setId: null,
                 },
                 inputAttributes: {
                     title: {
@@ -73,8 +76,8 @@
             },
             addCard() {
                 this.formData.cards.push({
-                    question: "Сторона 1",
-                    answer: "Сторона 2",
+                    question: "",
+                    answer: "",
                     isFlippable: false
                 });
             },
@@ -86,6 +89,21 @@
                 this.formData.cards[index].question = this.formData.cards[index].answer;
                 this.formData.cards[index].answer = firstSide;
             },
+            deleteSet() {
+                if (confirm("Вы уверены, что хотите удалить набор?")) {
+                    store.dispatch('deleteSet', this.setId);
+                    router.push('Materials');
+                }
+            }
+        },
+        async beforeMount() {
+            this.setId = this.$route.params.setId
+            if (this.setId !== "" && this.setId !== undefined && this.setId !== null) {
+                this.formData = await store.dispatch('getSet', this.setId);
+                delete this.formData.author;
+                delete this.formData.creationDate;
+                this.formData.cards = await store.dispatch('getSetCards', this.setId);
+            }
         },
         computed: {
             ...mapState(['formHasError'])
@@ -123,6 +141,7 @@
         min-width: 100px;
         width: 100%;
         max-width: 250px;
+        height: 100%;
         background-color: #FFFFFF;
         border: 1px solid #4285F4;
         border-radius: 3px;
@@ -166,11 +185,19 @@
     }
 
     .btn-remove-card {
-        background: red;
+        background: #E95252;
         width: 20px;
         height: 20px;
         &:hover {
             cursor: pointer;
+        }
+    }
+
+    .delete-btn {
+        background: #E95252;
+        &:hover {
+            cursor: pointer;
+            background: #EF5858;
         }
     }
 

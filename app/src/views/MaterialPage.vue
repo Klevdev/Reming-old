@@ -1,6 +1,9 @@
 <template>
     <div class="set-info">
-        <h2>{{set.title}}</h2>
+        <div class="set-header">
+            <h2>{{set.title}}</h2>
+            <button type="button" class="edit-btn" @click="this.$router.push(`/editor/${setId}`)">⋮</button>
+        </div>
         <dl>
             <dt>Описание</dt>
             <dd>{{set.description}}</dd>
@@ -20,7 +23,7 @@
 </template>
 
 <script>
-    import store from "@/store";
+    import store from "../store";
 
     export default {
         name: "MaterialPage",
@@ -51,6 +54,14 @@
         border-radius: 5px;
     }
 
+    .set-header {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
     dl {
         text-align: left;
         display: grid;
@@ -72,6 +83,19 @@
         &:hover {
             cursor: pointer;
             background-color: #4EBF8C;
+        }
+    }
+    .edit-btn {
+        padding-bottom: .2em;
+        color: black;
+        font-weight: bold;
+        font-size: 1.3em;
+        background: none;
+        width: 35px;
+        height: 35px;
+        &:hover {
+            cursor: pointer;
+            background: none;
         }
     }
 </style>

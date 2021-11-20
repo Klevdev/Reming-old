@@ -28,7 +28,6 @@
             }
         },
         async beforeMount() {
-        //    Здесь должна быть анимация загрузки
             this.sets = await store.dispatch('getUserSets');
         }
     }

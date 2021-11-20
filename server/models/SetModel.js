@@ -1,4 +1,4 @@
-module.exports = { addNew, getUserSets, get, getCards, saveStudy };
+module.exports = { addNew, getUserSets, get, getCards, saveStudy, deleteSet };
 
 const { MongoClient, ObjectID } = require('mongodb');
 
@@ -12,27 +12,58 @@ async function addNew(request, user) {
         isPublic: request.isPublic,
         creationDate: new Date().toString()
     };
+    let setId;
+    if (request.setId) {
+        setId = new ObjectID(request.setId);
+    } else {
+        set.creationDate = new Date().toString()
+    }
+
     try {
         await mongoClient.connect();
         const db = mongoClient.db("reming");
         let collection = db.collection("sets");
+        let insert;
+        if (!setId) {
+            insert = await collection.insertOne(set)
+                .catch(err => console.error(err));
+            // insertOne автоматически добавляет в добавляемый объект поле _id
+            setId = set._id;
+        } else {
+            insert = await collection.updateOne({
+                    _id: setId
+                }, set)
+                .catch(err => console.error(err));
 
-        let insert = await collection.insertOne(set)
-            .catch(err => console.error(err));
-        // insertOne автоматически добавляет в добавляемый объект поле _id
-        const setId = set._id;
+        }
         if (insert) {
             collection = db.collection("flashCards");
+
             let cards = request.cards;
-            cards.forEach(card => {
-                card.setId = setId;
-            });
-            insert = await collection.insertMany(cards)
-                .catch(err => console.error(err));
-            if (insert) {
-                return { setId: setId };
+            if (request.setId) {
+                // если запрос пришёл на редактирование
+                cards.forEach(async card => {
+                    let update = await collection.updateOne({
+                            _id: card._id
+                        }, card)
+                        .catch(err => console.error(err));
+                    if (update) {
+                        return { setId: setId };
+                    } else {
+                        return { error: "Ошибка записи в БД" };
+                    }
+                });
             } else {
-                return { error: "Ошибка записи в БД" };
+                cards.forEach(card => {
+                    card.setId = setId;
+                });
+                insert = await collection.insertMany(cards)
+                    .catch(err => console.error(err));
+                if (insert) {
+                    return { setId: setId };
+                } else {
+                    return { error: "Ошибка записи в БД" };
+                }
             }
         } else {
             return { error: "Ошибка записи в БД" };
@@ -104,7 +135,6 @@ async function get(id) {
 
             delete set.userId;
             set.author = author.name;
-            console.log(set);
             return set;
         } else {
             return { error: 'ошиибка при считывании из бд' };
@@ -163,6 +193,41 @@ async function saveStudy(user, setId, cards) {
             return { ok: 1 };
         } else {
             return { error: "Ошибка записи в БД" };
+        }
+    } catch (err) {
+        console.error(err);
+    } finally {
+        await mongoClient.close();
+    }
+}
+
+async function deleteSet(setId) {
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db("reming");
+        let collection = db.collection("sets");
+        let query = {
+            _id: new ObjectID(setId)
+        };
+        let deletion = await collection
+            .deleteOne(query)
+            .catch(err => console.error(err));
+        if (deletion) {
+            console.log(2, deletion);
+            collection = db.collection("flashCards");
+            let query = {
+                setId: new ObjectID(setId)
+            };
+            deletion = await collection
+                .deleteMany(query)
+                .catch(err => console.error(err));
+            if (deletion) {
+                return { ok: 1 };
+            } else {
+                return { error: 'Ошибка удаления из бд' };
+            }
+        } else {
+            return { error: 'Ошибка удаления из бд' };
         }
     } catch (err) {
         console.error(err);

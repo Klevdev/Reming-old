@@ -78,8 +78,9 @@ const routes = [
         }
     },
     {
-        path: '/editor',
+        path: '/editor/:setId?',
         name: 'Editor',
+        props: route => ({ setId: route.query.setId}),
         beforeEnter: (to, from, next) => {
             if (!store.state.userLoggedIn) {
                 store.commit('popupShow',{

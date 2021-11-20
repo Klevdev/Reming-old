@@ -2,9 +2,6 @@
     <Header @toggle-sidebar="toggleSidebar()"/>
     <Sidebar :collapsed="sidebarCollapsed"/>
     <Popup/>
-<!--    <button style="background-color: #A1C4FD;" @click="showpopup({message: 'А вы знали, что каждые 60 секунд в Африке проходит одна минута?', type: 'info'})">pop</button>-->
-<!--    <button style="background-color: #E95252;" @click="showpopup({message: 'Ошибка стоп 0x0001235A', type: 'error'})">pop</button>-->
-<!--    <button style="background-color: #3EAF7C;" @click="showpopup({message: 'Never gonna give you up, never gonna gonna let you down, never gonna turn around and desert you Never gonna give you up, never gonna gonna let you down, never gonna turn around and desert you Never gonna give you up, never gonna gonna let you down, never gonna turn around and desert you', type: 'success'})">pop</button>-->
     <router-view/>
 </template>
 
@@ -31,9 +28,6 @@
             toggleSidebar() {
                 this.sidebarCollapsed = !this.sidebarCollapsed;
             },
-            showpopup(payload) {
-                store.commit('popupShow',payload)
-            }
         },
         mounted() {
             let userAuthCookie = getCookie('auth');

@@ -4,10 +4,6 @@ const { castToStrings } = require('./core/Sanitizer');
 const cookieParser = require('cookie-parser');
 const app = express();
 
-// setInterval(() => {
-//     console.log("hey, thats pretty good!");
-// }, 3000);
-
 app.use(express.json());
 app.use(cors({
     origin: 'http://localhost:8080'

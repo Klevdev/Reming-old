@@ -1,22 +1,18 @@
 <template>
     <section>
-<!--        <transition name="appear">-->
-            <div class="card">
-                {{currentCardText}}
-            </div>
-<!--        </transition>-->
+        <div class="card">
+            {{currentCardText}}
+        </div>
         <div class="buttons">
             <button type="button" class="btn incorrect" @click="incorrect" :disabled="!currentCardFlipped">✕</button>
             <button type="button" class="btn flip" @click="flip">Перевернуть</button>
             <button type="button" class="btn correct" @click="correct" :disabled="!currentCardFlipped">✓</button>
         </div>
-<!--        <button @click="console.log(this.answers)">???</button>-->
     </section>
 </template>
 
 <script>
     import store from "../store";
-    import router from "../router";
 
     let answers = [];
 

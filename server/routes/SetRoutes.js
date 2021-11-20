@@ -26,7 +26,8 @@ router.post('/new', async(req, res) => {
         isPublic: {},
         cards: {
             required: true
-        }
+        },
+        setId: {}
     };
 
     let check = validateKeys(set, rules);
@@ -109,7 +110,6 @@ router.get("/cards", async(req, res) => {
 });
 
 router.post('/saveStudy', async(req, res) => {
-    // console.log(req.body);
     const authToken = req.body.auth;
     const user = await User.authUser(authToken);
     if (user.hasOwnProperty('error')) {
@@ -125,7 +125,31 @@ router.post('/saveStudy', async(req, res) => {
         return res.send({ ok: 1 });
     }
 
-    return res.status(500).send({ error: 'ОШбкаааааа' });
 });
+
+router.delete("", async(req, res) => {
+    const authToken = req.query.auth;
+    const user = await User.authUser(authToken);
+    if (user.hasOwnProperty('error')) {
+        return res.status(403).send(user.error);
+    }
+
+    /*
+    Где-то здесь должна быть проверка доступа к сету
+    Либо пользователь - автор
+    Либо набор общедоступен
+    Либо набор доступен по ссылке (и в запросе есть параметр указывающий на то, что доступ был по прямой ссылке)
+    Либо пользователь перечислен в массиве доступных пользователей
+    */
+
+    const setId = req.query.id;
+    const result = await Set.deleteSet(setId);
+    if (result.hasOwnProperty('error')) {
+        return res.status(500).send(result.error);
+    } else {
+        return res.send({ ok: 1 });
+    }
+});
+
 
 module.exports = router;
