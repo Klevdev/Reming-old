@@ -12,6 +12,7 @@ app.use(cors({
 /* - - - Роуты: - - - */
 app.use("/users", require("./routes/Users"));
 app.use("/materials", require("./routes/Materials"));
+app.use("/studies", require("./routes/Studies"));
 
 app.listen(process.env.PORT || 3000);
 console.log("Server is listening on http://localhost:" + process.env.PORT || 3000);

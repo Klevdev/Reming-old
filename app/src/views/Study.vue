@@ -4,33 +4,36 @@
             {{currentCardText}}
         </div>
         <div class="buttons">
-            <button type="button" class="btn incorrect" @click="incorrect" :disabled="!currentCardFlipped">✕</button>
+            <button type="button" class="btn incorrect" @click="answer(false)" :disabled="!currentCardFlipped">✕</button>
             <button type="button" class="btn flip" @click="flip">Перевернуть</button>
-            <button type="button" class="btn correct" @click="correct" :disabled="!currentCardFlipped">✓</button>
+            <button type="button" class="btn correct" @click="answer(true)" :disabled="!currentCardFlipped">✓</button>
         </div>
     </section>
 </template>
 
 <script>
     import store from "../store";
+    import router from "../router";
 
     let answers = [];
+    let cards = [];
 
     export default {
         name: "Study",
         data() {
             return {
                 setId: this.$route.params.setId,
-                cards: [],
                 currentCardIdx: -1,
                 currentCardText: null,
                 currentCardSide: 0,
                 currentCardFlipped: false,
-                // answers: []
             }
         },
         async beforeMount() {
-            this.cards = await store.dispatch('getSetCards', this.setId);
+            this.cards = await store.dispatch('request', {
+                method: "GET",
+                path: `materials/sets/${this.setId}`
+            });
             this.nextCard();
         },
         methods: {
@@ -44,17 +47,10 @@
                     this.currentCardText = this.cards[this.currentCardIdx].question;
                 }
             },
-            incorrect() {
+            answer(correct) {
                 answers.push({
-                    id: this.cards[this.currentCardIdx]._id,
-                    correct: false
-                });
-                this.nextCard();
-            },
-            correct() {
-                answers.push({
-                    id: this.cards[this.currentCardIdx]._id,
-                    correct: true
+                    idx: this.cards[this.currentCardIdx].idx,
+                    correct: correct
                 });
                 this.nextCard();
             },
@@ -67,8 +63,20 @@
                     this.currentCardSide = 0;
                     this.currentCardFlipped = false;
                 }
-            }, async save() {
-                await store.dispatch('saveStudyCards', {setId: this.setId, cards: answers});
+            },
+            async save() {
+                const result = await store.dispatch('request', {
+                    path: "studies",
+                    method: "POST",
+                    body: JSON.stringify({
+                        materialType: "set",
+                        materialId: this.setId,
+                        items: answers
+                    })
+                });
+                if (!result.hasOwnProperty('error')) {
+                    await router.push("/");
+                }
             }
         }
     }

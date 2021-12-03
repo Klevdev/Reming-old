@@ -191,11 +191,14 @@ router.delete('', async(req, res) => {
         const db = mongoClient.db('reming');
         const users = db.collection("users");
 
-        const authValidThru = await users.findOne({ 'auth.token': authToken }).then(res => res.auth.validThru);
+        const user = await users.findOne({ 'auth.token': authToken }, { projection: { auth: 1 } });
+        if (!user) {
+            return res.status(400).send({ error: 'Отсутствует токен' });
+        }
+        const authValidThru = user.auth.validThru;
         if (authValidThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
         }
-
         const check = await users.findOne({ 'auth.token': authToken, password: password }, { projection: { _id: 0 } });
         if (!check) {
             return res.status(401).send({ error: "Неправильный пароль" });

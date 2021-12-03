@@ -12,7 +12,7 @@
             <dt>Автор</dt>
             <dd>{{set.author}}</dd>
             <dt>Дата создания</dt>
-            <dd>{{set.creationDate}}</dd>
+            <dd>{{set.timeCreated}}</dd>
             <dt>Теги</dt>
             <dd>Скоро будут</dd>
         </dl>
@@ -34,7 +34,11 @@
             }
         },
         async beforeMount() {
-            this.set = await store.dispatch('getSet', this.setId);
+            this.set = await store.dispatch('request', {
+                path: `materials/${this.setId}`,
+                method: "GET"
+            });
+            this.set.timeCreated = new Date(this.set.timeCreated).toLocaleDateString("ru-RU");
         }
     }
 </script>

@@ -28,7 +28,10 @@
             }
         },
         async beforeMount() {
-            this.sets = await store.dispatch('getUserSets');
+            this.sets = await store.dispatch('request', {
+                path: 'materials/personal',
+                method: 'GET'
+            });
         }
     }
 </script>

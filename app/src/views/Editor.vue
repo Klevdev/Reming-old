@@ -24,8 +24,8 @@
                 </div>
             </div>
             <button type="button" @click="addCard">Добавить карточку</button>
-            <button type="submit" :disabled="formHasError">{{setId ? 'Подтвердить' : 'Создать' }}</button>
-            <button type="button" class="delete-btn" v-if="this.setId" @click="deleteSet">Удалить набор</button>
+            <button type="submit" :disabled="formHasError">{{formData.setId ? 'Подтвердить' : 'Создать' }}</button>
+            <button type="button" class="delete-btn" v-if="this.formData.setId" @click="deleteSet">Удалить набор</button>
         </form>
     </section>
 </template>
@@ -71,11 +71,20 @@
             }
         },
         methods: {
-            submitForm() {
-                store.dispatch('sendSet', this.formData);
+            async submitForm() {
+                let result = await store.dispatch('request', {
+                    path: 'materials/sets',
+                    method: 'PUT',
+                    body: JSON.stringify(this.formData)
+                });
+                if (!result.hasOwnProperty('error')) {
+                    const setId = result.id;
+                    await router.push(`/material/${setId}`)
+                }
             },
             addCard() {
                 this.formData.cards.push({
+                    idx: this.formData.cards.length,
                     question: "",
                     answer: "",
                     isFlippable: false
@@ -99,10 +108,16 @@
         async beforeMount() {
             this.setId = this.$route.params.setId
             if (this.setId !== "" && this.setId !== undefined && this.setId !== null) {
-                this.formData = await store.dispatch('getSet', this.setId);
+                this.formData = await store.dispatch('request', {
+                    path: `materials/${this.setId}`,
+                    method: 'GET'
+                });
                 delete this.formData.author;
-                delete this.formData.creationDate;
-                this.formData.cards = await store.dispatch('getSetCards', this.setId);
+                delete this.formData.timeCreated;
+                this.formData.cards = await store.dispatch('request', {
+                    path: `materials/sets/${this.setId}`,
+                    method: 'GET'
+                });
             }
         },
         computed: {

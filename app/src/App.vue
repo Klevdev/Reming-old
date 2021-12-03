@@ -2,6 +2,7 @@
     <Header @toggle-sidebar="toggleSidebar()"/>
     <Sidebar :collapsed="sidebarCollapsed"/>
     <Popup/>
+    <Prompt/>
     <router-view/>
 </template>
 
@@ -9,6 +10,7 @@
     import Header from '@/components/Header';
     import Sidebar from '@/components/Sidebar';
     import Popup from '@/components/Popup';
+    import Prompt from '@/components/Prompt';
     import store from "./store";
     import {getCookie} from "@/lib/cookies";
 
@@ -17,7 +19,8 @@
         components: {
             Header,
             Sidebar,
-            Popup
+            Popup,
+            Prompt
         },
         data() {
             return {
@@ -29,7 +32,7 @@
                 this.sidebarCollapsed = !this.sidebarCollapsed;
             },
         },
-        mounted() {
+        beforeMount() {
             let userAuthCookie = getCookie('auth');
             if (userAuthCookie !== '' && userAuthCookie !== 'undefined' && userAuthCookie !== undefined) {
                 let userNameCookie = getCookie('name');
