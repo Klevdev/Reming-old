@@ -2,7 +2,6 @@
     <section>
         <h1>Регистрация</h1>
         <form @submit.prevent="submitForm">
-            <Input v-model="formData.login" :attributes="inputAttributes.login"/>
             <Input v-model="formData.name" :attributes="inputAttributes.name"/>
             <Input v-model="formData.email" :attributes="inputAttributes.email"/>
             <Input v-model="formData.password" :attributes="inputAttributes.password"/>
@@ -35,18 +34,6 @@
         data() {
             return {
                 inputAttributes: {
-                    login: {
-                        label: "Логин",
-                        name: "login",
-                        type: "text",
-                        placeholder: "MyLogin123",
-                        prompt: "",
-                        rules: {
-                            required: true,
-                            lengthRange: [5, 30],
-                            restrictedChars: '!#$^*(){};:|/'
-                        },
-                    },
                     name: {
                         label: "Ваше имя",
                         name: "name",
@@ -94,7 +81,6 @@
                     },
                 },
                 formData: {
-                    login: null,
                     name: null,
                     email: null,
                     password: null,
@@ -103,27 +89,13 @@
             }
         },
         methods: {
-            async fetchUser() {
-                const res = await fetch('http://localhost:3000/user/signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(this.formData),
-                });
-                return res.json();
-            },
             async submitForm() {
-                console.log(JSON.stringify(this.formData));
-                this.errorMessage = "";
-                this.errors = [];
-                let res = await this.fetchUser();
-                if (res.hasOwnProperty('error')) {
-                    store.commit('popupShow',{
-                        type: 'error',
-                        message: res.error
-                    });
-                } else {
+                let res = await store.dispatch("request", {
+                    method: "POST",
+                    path: "users/signup",
+                    body: JSON.stringify(this.formData)
+                });
+                if (res) {
                     store.commit('userLogIn', {name: res.name, auth: res.auth});
                     await router.push('/');
                 }

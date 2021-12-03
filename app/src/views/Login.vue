@@ -2,7 +2,7 @@
     <section>
         <h1>Вход</h1>
         <form @submit.prevent="submitForm">
-            <Input v-model="formData.login" :attributes="inputAttributes.login"/>
+            <Input v-model="formData.email" :attributes="inputAttributes.email"/>
             <Input v-model="formData.password" :attributes="inputAttributes.password"/>
             <button type="submit" :disabled="formHasError">Войти</button>
         </form>
@@ -32,15 +32,15 @@
         data() {
             return {
                 formData: {
-                    login: null,
+                    email: null,
                     password: null,
                 },
                 inputAttributes: {
-                    login: {
-                        label: "Логин",
-                        name: "login",
-                        type: "text",
-                        placeholder: "MyLogin123",
+                    email: {
+                        label: "E-mail",
+                        name: "email",
+                        type: "email",
+                        placeholder: "myemail@gmail.com",
                         prompt: "",
                         rules: {
                             required: true,
@@ -60,24 +60,13 @@
             }
         },
         methods: {
-            async fetchUser() {
-                const res = await fetch('http://localhost:3000/user/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(this.formData),
-                });
-                return res.json();
-            },
             async submitForm() {
-                let res = await this.fetchUser();
-                if (res.hasOwnProperty('error')) {
-                    store.commit('popupShow',{
-                        type: 'error',
-                        message: res.error
-                    });
-                } else {
+                let res = await store.dispatch("request", {
+                    method: "POST",
+                    path: "users/login",
+                    body: JSON.stringify(this.formData)
+                });
+                if (res) {
                     store.commit('userLogIn', {name: res.name, auth: res.auth});
                     await router.push('/');
                 }

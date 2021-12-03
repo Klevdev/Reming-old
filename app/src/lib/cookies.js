@@ -5,7 +5,7 @@ function setCookie(name, value, exhours=null) {
     //     d.setTime(d.getTime() + (exhours * 60 * 60 * 1000));
     //     expires = "expires=" + d.toUTCString();
     // }
-    document.cookie = name + "=" + value + ";" + expires;
+    document.cookie = name + "=" + value + ";path=/" + ";" + expires;
 }
 
 function getCookie(cname) {

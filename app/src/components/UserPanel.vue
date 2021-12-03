@@ -16,7 +16,8 @@
 
 <script>
     import store from "../store";
-    import {mapState, mapActions} from 'vuex';
+    import {mapState} from 'vuex';
+    import router from "../router";
 
     export default {
         name: "UserPanel",
@@ -31,7 +32,16 @@
         created() {
         },
         methods: {
-            ...mapActions(['userLogOut'])
+            async userLogOut() {
+                const result = await store.dispatch('request', {
+                    method: "POST",
+                    path: "users/logout"
+                });
+                if (result.hasOwnProperty("ok")) {
+                    store.commit("userLogOut");
+                    await router.push('/');
+                }
+            }
         }
     }
 </script>

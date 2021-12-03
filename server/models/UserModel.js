@@ -1,10 +1,10 @@
-module.exports = { authUser, findOne, login, logout, signup };
+// module.exports = { authUser, findOne, login, logout, signup };
 
 const { MongoClient } = require('mongodb');
 const crypto = require('crypto');
 
 
-const mongoClient = new MongoClient('mongodb://localhost:27017/reming');
+const mongoClient = new MongoClient(process.env.DB_URL);
 
 async function findOne(query, project = null) {
     if (project === null) {
@@ -19,7 +19,6 @@ async function findOne(query, project = null) {
             .project(project)
             .toArray()
             .then(res => res[0])
-            .catch(err => console.error(err));
 
         return result;
     } catch (err) {

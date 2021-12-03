@@ -53,13 +53,13 @@ export default createStore({
                 message: `Добро пожаловать, ${payload.name}`
             });
         },
-        // userLogOut(state) {
-        //     state.userLoggedIn = false;
-        //     state.userToken = 0;
-        //     state.userName = '';
-        //     setCookie('auth', 0);
-        //     setCookie('name', '');
-        // },
+        userLogOut(state) {
+            state.userLoggedIn = false;
+            state.userToken = '';
+            state.userName = '';
+            setCookie('auth', '');
+            setCookie('name', '');
+        },
         formErrorOccurred(state) {
             state.formHasError = true;
         },
@@ -68,28 +68,30 @@ export default createStore({
         }
     },
     actions: {
-        async userLogOut(context) {
-            const res = await fetch('http://localhost:3000/user/logout', {
-                method: 'POST',
+        async request(context, params) {
+            /*
+                params = {method, path, body}
+            */
+            const uri = "http://localhost:3000/" + params.path;
+            const res = await fetch(uri, {
+                method: params.method,
                 headers: {
+                    'x-access-token': context.state.userToken,
                     'Content-Type': 'application/json',
                 },
-                // mode: 'cors',
-                // credentials: 'omit',
-                body: JSON.stringify({
-                    auth: context.state.userToken
-                }),
+                credentials: 'same-origin',
+                body: params.hasOwnProperty("body") ? params.body : undefined
             });
             let response = await res.json();
             if (response.hasOwnProperty('error')) {
-                console.error('WTF');
+                console.error(res.error);
+                context.commit('popupShow',{
+                    type: 'error',
+                    message: response.error
+                });
+                return false;
             } else {
-                context.state.userLoggedIn = false;
-                context.state.userToken = '';
-                context.state.userName = '';
-                setCookie('auth', '');
-                setCookie('name', '');
-                await router.push('/');
+                return response;
             }
         },
         async sendSet(context, set) {

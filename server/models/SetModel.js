@@ -1,8 +1,8 @@
-module.exports = { addNew, getUserSets, get, getCards, saveStudy, deleteSet };
+// module.exports = { addNew, getUserSets, get, getCards, saveStudy, deleteSet };
 
 const { MongoClient, ObjectID } = require('mongodb');
 
-const mongoClient = new MongoClient('mongodb://localhost:27017/reming');
+const mongoClient = new MongoClient(process.env.DB_URL);
 
 async function addNew(request, user) {
     const set = {
