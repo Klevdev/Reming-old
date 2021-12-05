@@ -6,24 +6,26 @@
             <label for="description">Описание</label>
             <textarea v-model="formData.description" name="description" id="description" placeholder="Карточки для подготовки к экзамену" maxlength="100"></textarea>
             <Checkbox v-model="formData.isPublic" :attributes="inputAttributes.isPublic"/>
-            <p>Карточки набора</p>
+            <span v-if="formData.cards.length">Карточки набора: {{this.formData.cards}}</span>
             <div class="cards">
                 <div class="card" v-for="(card, index) in formData.cards" :key="index">
-                    <div style="width: 15px">{{index+1}}</div>
-                    <div>
-                        <textarea v-model="formData.cards[index].question" placeholder="Лицевая сторона (вопрос)" maxlength="100"></textarea>
-                    </div>
-                    <div>
-                        <textarea v-model="formData.cards[index].answer" placeholder="Обратная сторона (ответ)" maxlength="100"></textarea>
-                    </div>
-                    <div class="card-btns">
+                    <div class="card-idx-delete">
+                        <span>{{index+1}}</span>
                         <button type="button" class="btn-remove-card" @click="removeCard(index)"></button>
-                        <button type="button" class="btn-flip-card" @click="flipCard(index)"></button>
-                        <input type="checkbox" v-model="formData.cards[index].isFlippable">
+                    </div>
+                    <div>
+                        <textarea v-model="formData.cards[index].question" placeholder="Лицевая сторона" maxlength="100"></textarea>
+                    </div>
+                    <button type="button" class="btn-flip-card" @click="flipCard(index)"></button>
+                    <div>
+                        <textarea v-model="formData.cards[index].answer" placeholder="Обратная сторона" maxlength="100"></textarea>
+                    </div>
+                    <div class="card-options" style="font-size: 0.8em">
+                        <Checkbox v-model="formData.cards[index].isFlippable" :attributes="inputAttributes.isFlippable" :idx="index"/>
                     </div>
                 </div>
             </div>
-            <button type="button" @click="addCard">Добавить карточку</button>
+            <button type="button" class="btn-add-card" @click="addCard">Добавить карточку</button>
             <button type="submit" :disabled="formHasError">{{formData.setId ? 'Подтвердить' : 'Создать' }}</button>
             <button type="button" class="delete-btn" v-if="this.formData.setId" @click="deleteSet">Удалить набор</button>
         </form>
@@ -66,6 +68,10 @@
                     isPublic: {
                         label: "Доступен из библиотеки",
                         name: "cb-is-public"
+                    },
+                    isFlippable: {
+                        label: "Может переворачиваться",
+                        name: "cb-is-flippable"
                     }
                 }
             }
@@ -73,8 +79,8 @@
         methods: {
             async submitForm() {
                 let result = await store.dispatch('request', {
-                    path: 'materials/sets',
-                    method: 'PUT',
+                    path: 'materials/sets' + (this.setId ? `/${this.setId}` : ''),
+                    method: this.setId ? 'PUT' : 'POST',
                     body: JSON.stringify(this.formData)
                 });
                 if (!result.hasOwnProperty('error')) {
@@ -98,15 +104,10 @@
                 this.formData.cards[index].question = this.formData.cards[index].answer;
                 this.formData.cards[index].answer = firstSide;
             },
-            deleteSet() {
-                if (confirm("Вы уверены, что хотите удалить набор?")) {
-                    store.dispatch('deleteSet', this.setId);
-                    router.push('Materials');
-                }
-            }
         },
         async beforeMount() {
-            this.setId = this.$route.params.setId
+            console.log("Все ошибки ниже можно проигнорировать (П - профессионализм)")
+            this.setId = this.$route.params.setId;
             if (this.setId !== "" && this.setId !== undefined && this.setId !== null) {
                 this.formData = await store.dispatch('request', {
                     path: `materials/${this.setId}`,
@@ -155,8 +156,8 @@
     textarea {
         min-width: 100px;
         width: 100%;
-        max-width: 250px;
-        height: 100%;
+        /*max-width: 250px;*/
+        height: 70px;
         background-color: #FFFFFF;
         border: 1px solid #4285F4;
         border-radius: 3px;
@@ -175,23 +176,36 @@
     }
 
     .card {
+        height: 120px;
+        padding: 7px 0;
         display: flex;
         flex-direction: row;
-        gap: 7px;
-        padding: 10px 0;
-        &:not(:last-child) {
-            border-bottom: 1px solid #AAA;
+        flex-wrap: wrap;
+        align-items: center;
+        column-gap: 7px;
+        &:not(:first-child) {
+            border-top: 1px solid #AAA;
         }
     }
 
-    .card-btns {
+    .card-idx-delete {
+        width: 25px;
+        height: 50%;
         display: flex;
         flex-direction: column;
-        gap: 7px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-options {
+        padding-left: 32px;
+        display: flex;
+        flex-direction: row;
     }
 
     .btn-flip-card {
-        background: #4285F4;
+        background: url("../assets/icons/reverse.svg") center center no-repeat;
+        background-size: 20px 20px;
         width: 20px;
         height: 20px;
         &:hover {
@@ -200,10 +214,21 @@
     }
 
     .btn-remove-card {
-        background: #E95252;
+        background: url("../assets/icons/subtract.svg") center center no-repeat;
+        background-size: 20px 20px;
         width: 20px;
         height: 20px;
         &:hover {
+            cursor: pointer;
+        }
+    }
+
+    .btn-add-card {
+        padding-left: 25px;
+        background: url("../assets/icons/add.svg") 0 center no-repeat;
+        background-size: 20px 20px;
+        &:hover {
+            background-color: initial;
             cursor: pointer;
         }
     }

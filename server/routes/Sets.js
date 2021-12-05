@@ -19,8 +19,7 @@ router.post("", async(req, res) => {
         if (!user) {
             return res.status(400).send({ error: 'Токен недействителен' });
         }
-        const authValidThru = user.auth.validThru;
-        if (authValidThru < Date.now()) {
+        if (user.auth.validThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
         }
 
@@ -65,19 +64,24 @@ router.put("/:id", async(req, res) => {
     try {
         await mongoClient.connect();
         const db = mongoClient.db("reming");
-        const users = db.collection("users");
+        let collection = db.collection("users");
 
-        const user = await users.findOne({ 'auth.token': authToken }, { projection: { auth: 1 } });
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { auth: 1 } });
         if (!user) {
             return res.status(400).send({ error: 'Токен недействителен' });
         }
-        const authValidThru = user.auth.validThru;
-        if (authValidThru < Date.now()) {
+        if (user.auth.validThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
         }
 
         const setId = new ObjectId(req.params.id);
-        const set = {
+        collection = db.collection("materials");
+        let set = await collection.findOne({ _id: setId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
+        if (set.userId !== user._id && !set.isPublic) {
+            return res.status(403).send({ error: "У вас нет доступа к этому набору" });
+        }
+
+        set = {
             type: "set",
             title: req.body.title,
             description: req.body.description,
@@ -86,16 +90,16 @@ router.put("/:id", async(req, res) => {
             timeUpdated: Date.now()
         };
 
-        const materials = db.collection("materials");
-        let update = await materials.updateOne({ _id: setId }, {
+        collection = db.collection("materials");
+        let update = await collection.updateOne({ _id: setId }, {
             $set: set
         });
         if (!update.matchedCount || !update.modifiedCount) {
             return res.status(500).send({ error: 'Ошибка базы данных 1' });
         }
 
-        const cards = db.collection("cards");
-        update = await cards.updateOne({ setId: setId }, {
+        collection = db.collection("cards");
+        update = await collection.updateOne({ setId: setId }, {
             $set: { cards: req.body.cards }
         });
         if (!update.matchedCount || !update.modifiedCount) {
@@ -117,31 +121,36 @@ router.delete("/:id", async(req, res) => {
     if (authToken === '' || authToken === undefined) {
         return res.status(400).send({ error: 'Отсутствует токен' });
     }
-
     try {
         await mongoClient.connect();
         const db = mongoClient.db('reming');
         const users = db.collection("users");
 
-        const user = await users.findOne({ 'auth.token': authToken }, { projection: { auth: 1 } });
+        const user = await users.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1 } });
         if (!user) {
             return res.status(400).send({ error: 'Отсутствует токен' });
         }
-        const authValidThru = user.auth.validThru;
-        if (authValidThru < Date.now()) {
+        if (user.auth.validThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
         }
 
         const setId = new ObjectId(req.params.id);
-        const cards = db.collection("cards");
-        let deletion = await cards.deleteOne({ setId: setId });
-        if (!deletion.deletedCount) {
-            return res.status(500).send({ error: 'Ошибка удаления 1' });
+
+        const set = await collection.findOne({ _id: setId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
+        if (set.userId !== user._id && !set.isPublic) {
+            return res.status(403).send({ error: "У вас нет доступа к этому набору" });
         }
+
+        const studies = db.collection("studies");
+        await studies.deleteOne({ materialId: setId });
+
+        const cards = db.collection("cards");
+        await cards.deleteOne({ setId: setId });
+
         const materials = db.collection("materials");
-        deletion = await materials.deleteOne({ _id: setId });
+        let deletion = await materials.deleteOne({ _id: setId });
         if (!deletion.deletedCount) {
-            return res.status(500).send({ error: 'Ошибка удаления 2' });
+            return res.status(500).send({ error: 'Ошибка удаления 3' });
         }
 
         return res.send({ ok: 1 });
@@ -163,16 +172,27 @@ router.get("/:id", async(req, res) => {
     try {
         await mongoClient.connect();
         const db = mongoClient.db("reming");
-        const users = db.collection("users");
+        collection = db.collection("users");
 
-        const authValidThru = await users.findOne({ 'auth.token': authToken }).then(res => res.auth.validThru);
-        if (authValidThru < Date.now()) {
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1 } });
+        if (!user) {
+            return res.status(401).send({ error: "Токен недействителен" });
+        }
+        if (user.auth.validThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
         }
 
-        const collection = db.collection("cards");
         const setId = new ObjectId(req.params.id);
+
+        collection = db.collection("materials");
+        const set = await collection.findOne({ _id: setId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
+        if (set.userId !== user._id && !set.isPublic) {
+            return res.status(403).send({ error: "У вас нет доступа к этому набору" });
+        }
+
+        collection = db.collection("cards");
         const cards = await collection.findOne({ setId: setId }, { projection: { _id: 0, setId: 0 } }).then(res => res.cards);
+
 
         return res.send(cards);
 

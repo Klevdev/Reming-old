@@ -4,7 +4,7 @@
         <input
                 :value="modelValue"
                 :id="id"
-                :name="attributes.name"
+                :name="attributes.name+this.idx"
                 type="checkbox"
                 :class="{'input-error': this.error}"
                 @change="$emit('update:modelValue', $event.target.checked)"
@@ -18,14 +18,18 @@
         name: "checkbox",
         props: {
             modelValue: Boolean,
-            attributes: Object
+            attributes: Object,
+            idx: {
+                type: Number,
+                default: 1
+            },
         },
         emits: [
             'update:modelValue'
         ],
         data() {
             return {
-                id: 'input-'+this.attributes.name,
+                id: 'input-'+this.attributes.name+this.idx,
                 error: null
             }
         },

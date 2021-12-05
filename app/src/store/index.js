@@ -20,9 +20,6 @@ export default createStore({
     },
     mutations: {
         popupShow(state, payload) {
-            if (state.popupShow) {
-                this.commit('popupClose');
-            }
             setTimeout(() => {
                 state.popupShow = true;
                 state.popupMessage = payload.message;
@@ -30,14 +27,17 @@ export default createStore({
                 state.popupTimeoutId = setTimeout(() => {
                     this.commit('popupClose');
                 }, 5000);
-            }, 400);
+            }, state.popupShow ? 400 : 0);
             state.popupTimeoutId = null;
+            if (state.popupShow) {
+                this.commit('popupClose');
+            }
         },
         popupClose(state) {
             clearTimeout(state.popupTimeoutId);
             state.popupTimeoutId = null;
             state.popupShow = false;
-            setTimeout(() => {
+            state.popupAppearenceTimeoutId = setTimeout(() => {
                 state.popupMessage = null;
                 state.popupType = null;
             }, 400);
@@ -89,10 +89,8 @@ export default createStore({
                     type: 'error',
                     message: response.error
                 });
-                return false;
-            } else {
-                return response;
             }
+            return response;
         },
         async sendSet(context, set) {
             const res = await fetch('http://localhost:3000/set/new', {

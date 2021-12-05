@@ -114,16 +114,16 @@ router.post('/logout', async(req, res) => {
         const db = mongoClient.db('reming');
         const users = db.collection("users");
 
-        const update = await users.updateOne({ 'auth.token': authToken }, {
+        await users.updateOne({ 'auth.token': authToken }, {
             $unset: {
                 auth: 1
             }
         });
-        if (!update.matchedCount || !update.modifiedCount) {
-            return res.status(401).send({ error: 'Пользователь не найден' });
-        } else {
-            return res.send({ ok: 1 });
-        }
+        return res.send({ ok: 1 });
+        // if (!update.matchedCount || !update.modifiedCount) {
+        //     return res.status(401).send({ error: 'Пользователь не найден' });
+        // } else {
+        // }
     } catch (err) {
         console.error(err);
         return res.status(500).send({ error: err });

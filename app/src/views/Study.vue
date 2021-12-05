@@ -1,5 +1,5 @@
 <template>
-    <section>
+    <section v-if="!studyComplete">
         <div class="card">
             {{currentCardText}}
         </div>
@@ -7,6 +7,24 @@
             <button type="button" class="btn incorrect" @click="answer(false)" :disabled="!currentCardFlipped">✕</button>
             <button type="button" class="btn flip" @click="flip">Перевернуть</button>
             <button type="button" class="btn correct" @click="answer(true)" :disabled="!currentCardFlipped">✓</button>
+        </div>
+    </section>
+    <section v-else>
+        <div class="end-screen">
+            <h1>Итог</h1>
+            <h2>Отвечены верно:</h2>
+            <ul>
+                <li v-for="(answer) in this.getCorrect()">
+                    [{{this.cards[answer.idx].idx}}] {{this.cards[answer.idx].question}} - {{this.cards[answer.idx].answer}}
+                </li>
+            </ul>
+            <h2>Отвечены неверно:</h2>
+            <ul>
+                <li v-for="(answer) in this.getIncorrect()">
+                    [{{this.cards[answer.idx].idx}}] {{this.cards[answer.idx].question}} - {{this.cards[answer.idx].answer}}
+                </li>
+            </ul>
+            <button type="button" @click="this.save">Сохранить и выйти</button>
         </div>
     </section>
 </template>
@@ -22,6 +40,7 @@
         name: "Study",
         data() {
             return {
+                studyComplete: false,
                 setId: this.$route.params.setId,
                 currentCardIdx: -1,
                 currentCardText: null,
@@ -34,6 +53,9 @@
                 method: "GET",
                 path: `materials/sets/${this.setId}`
             });
+            if (this.cards.hasOwnProperty('error')) {
+                router.go(-1);
+            }
             this.nextCard();
         },
         methods: {
@@ -57,12 +79,19 @@
             nextCard() {
                 this.currentCardIdx++;
                 if (this.currentCardIdx >= this.cards.length) {
-                    this.save();
+                    // this.save();
+                    this.studyComplete = true;
                 } else {
                     this.currentCardText = this.cards[this.currentCardIdx].question;
                     this.currentCardSide = 0;
                     this.currentCardFlipped = false;
                 }
+            },
+            getCorrect() {
+                return answers.filter(answer => answer.correct);
+            },
+            getIncorrect() {
+                return answers.filter(answer => !answer.correct);
             },
             async save() {
                 const result = await store.dispatch('request', {
@@ -74,6 +103,7 @@
                         items: answers
                     })
                 });
+                answers = [];
                 if (!result.hasOwnProperty('error')) {
                     await router.push("/");
                 }
@@ -92,7 +122,6 @@
     }
 
     .card {
-        position: relative;
         margin: 0 auto;
         font-size: 1.5em;
         width: 300px;
@@ -161,6 +190,24 @@
                 background-color: #AAAAAA;
                 cursor: default;
             }
+        }
+    }
+    .end-screen {
+        margin: 0 auto;
+        width: 500px;
+        height: max-content;
+        box-shadow: 0 0 10px #2c3e5033, 0 20px 20px #2c3e5011;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        background-color: #FAFAFA;
+        padding: 20px 25px;
+        border-radius: 5px;
+
+        &>ul {
+            list-style: none;
+            text-align: left;
         }
     }
 </style>

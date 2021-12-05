@@ -78,8 +78,18 @@ const routes = [
         }
     },
     {
-        // path: '/editor/:setId?',
-        path: '/editor',
+        path: '/library',
+        name: 'Library',
+        // beforeEnter: (to, from, next) => {},
+        component: function () {
+            return import('../views/Library')
+        },
+        meta: {
+            title: 'Мои наборы'
+        }
+    },
+    {
+        path: '/editor/:setId?',
         name: 'Editor',
         // props: route => ({ 'formData.setId': route.query.setId}),
         beforeEnter: (to, from, next) => {

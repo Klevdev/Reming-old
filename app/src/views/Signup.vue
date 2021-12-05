@@ -35,10 +35,10 @@
             return {
                 inputAttributes: {
                     name: {
-                        label: "Ваше имя",
+                        label: "Имя пользователя",
                         name: "name",
                         type: "text",
-                        placeholder: "Александр",
+                        placeholder: "Username123",
                         prompt: "",
                         rules: {
                             required: true,

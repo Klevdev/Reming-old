@@ -11,8 +11,8 @@ router.get("/public", async(req, res) => {
         await mongoClient.connect();
         const db = mongoClient.db("reming");
 
-        const materialsCollection = db.collection("materials");
-        const materials = await materialsCollection.find({ isPublic: true }).toArray();
+        const collection = db.collection("materials");
+        const materials = await collection.find({ isPublic: true }).toArray();
 
         return res.send(materials);
 
@@ -34,19 +34,17 @@ router.get("/personal", async(req, res) => {
     try {
         await mongoClient.connect();
         const db = mongoClient.db("reming");
-        const users = db.collection("users");
 
-        const user = await users.findOne({ 'auth.token': authToken }, { projection: { auth: 1 } });
+        let collection = db.collection("users");
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1, name: 1 } });
         if (!user) {
-            return res.status(400).send({ error: 'Отсутствует токен' });
+            return res.status(400).send({ error: 'Токен недействителен' });
         }
-        const authValidThru = user.auth.validThru;
-        if (authValidThru < Date.now()) {
+        if (user.auth.validThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
         }
-        const materialsCollection = db.collection("materials");
-        const materials = await materialsCollection.find({ userId: user._id }).toArray();
-
+        collection = db.collection("materials");
+        const materials = await collection.find({ userId: user._id }).toArray();
         return res.send(materials);
 
     } catch (err) {
@@ -66,24 +64,29 @@ router.get("/:id", async(req, res) => {
     try {
         await mongoClient.connect();
         const db = mongoClient.db("reming");
-        const users = db.collection("users");
 
-        const user = await users.findOne({ 'auth.token': authToken }, { projection: { auth: 1 } });
+        collection = db.collection("users");
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1, name: 1 } });
         if (!user) {
-            return res.status(400).send({ error: 'Отсутствует токен' });
+            return res.status(401).send({ error: "Токен недействителен" });
         }
-        const authValidThru = user.auth.validThru;
-        if (authValidThru < Date.now()) {
+        if (user.auth.validThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
         }
 
-        const materials = db.collection("materials");
         const materialId = new ObjectId(req.params.id);
-        const material = await materials.findOne({ _id: materialId }, { projection: { _id: 0 } });
 
+        collection = db.collection("materials");
+        const material = await collection.findOne({ _id: materialId });
         if (!material) {
             return res.status(404).send({ error: 'Материал не найден' });
         }
+        if (material.userId !== user._id && !material.isPublic) {
+            return res.status(403).send({ error: "У вас нет доступа к этому материалу" });
+        }
+        material.author = user.name;
+        delete material.userId;
+
         return res.send(material);
 
     } catch (err) {

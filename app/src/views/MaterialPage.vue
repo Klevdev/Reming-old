@@ -2,11 +2,12 @@
     <div class="set-info">
         <div class="set-header">
             <h2>{{set.title}}</h2>
-            <button type="button" class="edit-btn" @click="this.$router.push(`/editor/${setId}`)">⋮</button>
+            <button type="button" class="edit-btn" @click="this.$router.push(`/editor/${setId}`)"></button>
+            <button type="button" class="delete-btn" @click="deleteSet"></button>
         </div>
         <dl>
             <dt>Описание</dt>
-            <dd>{{set.description}}</dd>
+            <dd style="overflow: hidden;text-overflow: ellipsis;">{{set.description}}</dd>
             <dt>Доступен в библиотеке</dt>
             <dd>{{set.isPublic ? 'Да' : 'Нет'}}</dd>
             <dt>Автор</dt>
@@ -16,14 +17,15 @@
             <dt>Теги</dt>
             <dd>Скоро будут</dd>
         </dl>
-        <div>
-            <button type="button" class="start-btn" @click="this.$router.push(`/study/${setId}`)">►</button>
+        <div class="btns">
+            <router-link class="start-btn" :to="'/study/'+setId">►</router-link>
         </div>
     </div>
 </template>
 
 <script>
     import store from "../store";
+    import router from "../router";
 
     export default {
         name: "MaterialPage",
@@ -38,7 +40,22 @@
                 path: `materials/${this.setId}`,
                 method: "GET"
             });
+            if (this.set.hasOwnProperty('error')) {
+                router.go(-1);
+            }
             this.set.timeCreated = new Date(this.set.timeCreated).toLocaleDateString("ru-RU");
+        },
+        methods: {
+            async deleteSet() {
+                if (confirm("Вы уверены, что хотите удалить набор?")) {
+                    const res = await store.dispatch('request',{
+                        path: `materials/sets/${this.setId}`,
+                        method: 'DELETE',
+                    });
+                    if (!res.hasOwnProperty('error'))
+                        router.go(-1);
+                }
+            }
         }
     }
 </script>
@@ -60,10 +77,13 @@
 
     .set-header {
         width: 100%;
-        display: flex;
-        flex-direction: row;
+        display: grid;
+        grid-template-columns: 1fr 35px 35px;
         align-items: center;
-        justify-content: space-between;
+
+        & > h2 {
+            text-align: left;
+        }
     }
 
     dl {
@@ -76,30 +96,52 @@
         }
     }
     .start-btn {
-        padding: 0 0 0 2px;
+        padding: 10px 10px 10px 12px;
         color: white;
         font-size: 1em;
         background-color: #3EAF7C;
         border-radius: 50%;
         width: 35px;
         height: 35px;
-        transition: background-color .2s;
+        transition: background-color .2s, opacity .1s;
         &:hover {
             cursor: pointer;
             background-color: #4EBF8C;
         }
     }
+
+    .btns {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
     .edit-btn {
         padding-bottom: .2em;
         color: black;
         font-weight: bold;
         font-size: 1.3em;
-        background: none;
+        background: url("../assets/icons/edit.svg") center center no-repeat;
+        background-size: 20px 20px;
         width: 35px;
         height: 35px;
         &:hover {
             cursor: pointer;
-            background: none;
+            background-color: initial;
+        }
+    }
+    .delete-btn {
+        padding-bottom: .2em;
+        color: black;
+        font-weight: bold;
+        font-size: 1.3em;
+        background: url("../assets/icons/delete.svg") center center no-repeat;
+        background-size: 20px 20px;
+        width: 35px;
+        height: 35px;
+        &:hover {
+            cursor: pointer;
+            background-color: initial;
         }
     }
 </style>

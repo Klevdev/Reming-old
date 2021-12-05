@@ -1,6 +1,7 @@
 <template>
     <nav :class="collapsed ? 'open' : 'collapsed'">
         <router-link to="/">Главная</router-link>
+        <router-link to="/library">Библиотека</router-link>
         <router-link to="/editor">Конструктор</router-link>
         <router-link to="/mymaterials">Мои наборы</router-link>
         <router-link to="/about">О сайте</router-link>

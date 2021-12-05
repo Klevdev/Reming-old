@@ -24,7 +24,7 @@ router.post("", async(req, res) => {
         const study = {
             userId: user._id,
             materialType: req.body.materialType,
-            materialId: req.body.materialId,
+            materialId: new ObjectId(req.body.materialId),
             time: Date.now(),
             items: req.body.items
         };

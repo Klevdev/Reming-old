@@ -1,8 +1,9 @@
 <template>
-    <h1>Мои наборы</h1>
+    <h1>Библиотека</h1>
     <div v-if="!sets.length">
-        У вас пока нет наборов карточек. Но вы можете
-        <router-link to="/editor">создать их</router-link>
+        Здесь ничего нет :(
+        <br>
+        ...но вы могли бы <router-link to="/editor">добавить</router-link> сюда что-то своё
     </div>
     <section class="sets-wrapper">
         <div class="set" v-for="set in sets">
@@ -21,7 +22,7 @@
     import store from "../store";
 
     export default {
-        name: "Materials",
+        name: "Library",
         data() {
             return {
                 sets: [],
@@ -29,7 +30,7 @@
         },
         async beforeMount() {
             this.sets = await store.dispatch('request', {
-                path: 'materials/personal',
+                path: 'materials/public',
                 method: 'GET'
             });
         }

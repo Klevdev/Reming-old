@@ -8,6 +8,10 @@ app.use(express.json());
 app.use(cors({
     origin: "http://localhost:8080"
 }));
+// app.use((req, res, next) => {
+//     console.log(req.body);
+//     next();
+// });
 
 /* - - - Роуты: - - - */
 app.use("/users", require("./routes/Users"));

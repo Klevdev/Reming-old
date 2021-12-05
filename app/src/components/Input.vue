@@ -51,7 +51,6 @@
     input {
         min-width: 100px;
         width: 100%;
-        max-width: 250px;
         background-color: #FFFFFF;
         border: 1px solid #4285F4;
         border-radius: 3px;

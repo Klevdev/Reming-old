@@ -37,10 +37,10 @@
                     method: "POST",
                     path: "users/logout"
                 });
-                if (result.hasOwnProperty("ok")) {
-                    store.commit("userLogOut");
-                    await router.push('/');
-                }
+                // if (result.hasOwnProperty("ok")) {
+                store.commit("userLogOut");
+                await router.push('/');
+                // }
             }
         }
     }
