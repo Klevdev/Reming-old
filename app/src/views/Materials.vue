@@ -27,7 +27,7 @@
                 sets: [],
             }
         },
-        async beforeMount() {
+        async created() {
             this.sets = await store.dispatch('request', {
                 path: 'materials/personal',
                 method: 'GET'

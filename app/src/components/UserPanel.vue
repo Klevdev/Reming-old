@@ -3,15 +3,15 @@
         <router-link class="login-button" to="/login">Войти</router-link>
 <!--        <router-link to="/signup">Зарегистрироваться</router-link>-->
     </div>
-    <div v-if="userLoggedIn" class="user-panel">
+    <div v-if="userLoggedIn" class="user-panel" :class="{'show-dropdown': !showDropDown}" @click="showDropDown = !showDropDown" >
         <img id="user-avatar" src="../assets/icons/user.svg" alt="default avatar">
         <div id="user-name">{{userName}}</div>
-        <button id="toggle-user-dropdown" @click="showDropDown = !showDropDown" :class="{arrowUp: showDropDown}"></button>
-        <ul v-if="showDropDown" class="dropdown">
-            <li>Профиль</li>
-            <li id="logout" @click="userLogOut">Выйти</li>
-        </ul>
+<!--        <button id="toggle-user-dropdown" :class="{arrowUp: showDropDown}"></button>-->
     </div>
+    <ul v-if="userLoggedIn && showDropDown" class="dropdown">
+        <li>Профиль</li>
+        <li id="logout" @click="userLogOut">Выйти</li>
+    </ul>
 </template>
 
 <script>
@@ -47,7 +47,7 @@
 </script>
 
 <style scoped lang="scss">
-    $panel-width: 200px;
+    $panel-width: 250px;
     .login-button {
         background-color: #4285F4;
         border: none;
@@ -62,15 +62,25 @@
     }
 
     .user-panel {
+        &>*::selection {
+            background: initial;
+        }
+        z-index: 100;
         width: $panel-width;
-        background-color: #FAFAFA;
-        border: 1px solid black;
-        border-radius: 3px;
-        padding: 7px 10px;
+        height: 55px;
+        padding: 0 20px;
         color: black;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        place-items: center;
+        gap: 15px;
+        /*&.show-dropdown:hover {*/
+        /*    border-bottom: 2px solid #4285F4;*/
+        /*}*/
+        &:hover {
+            background-color: #F3F3F3;
+            cursor: pointer;
+        }
     }
 
     #user-avatar {
@@ -79,43 +89,54 @@
     }
 
     #user-name {
+        width: 100%;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    #toggle-user-dropdown {
-        width: 24px;
-        height: 24px;
-        border: none;
-        margin-left: auto;
-        background: url("../assets/icons/dropDown.png") center center no-repeat;
-        background-size: 12px 8px;
-        &.arrowUp {
-            transform: rotate(180deg);
-        }
-    }
+
+    /*#toggle-user-dropdown {*/
+    /*    width: 24px;*/
+    /*    height: 24px;*/
+    /*    margin-left: auto;*/
+    /*    background: url("../assets/icons/triangle-arrow-down.png") center center no-repeat;*/
+    /*    background-size: 12px 8px;*/
+    /*    &.arrowUp {*/
+    /*        transform: rotate(180deg);*/
+    /*    }*/
+    /*}*/
 
     #logout {
         color: red;
-        &:hover {
-            cursor: pointer;
-        }
     }
 
     .dropdown {
-        border: 1px solid black;
+        box-shadow: 0 5px 5px #2c3e5033;
+        z-index: 90;
         position: absolute;
         display: block;
         width: $panel-width;
-        top: 30px;
-        right: 50px;
+        top: 55px;
+        right: 30px;
         list-style: none;
-        background-color: #FAFAFA;
         border-radius: 0 0 3px 3px;
-        border-top: none;
+        background-color: #FAFAFA;
 
         & > li {
+            margin: 0;
+            text-align: left;
             display: block;
             width: 100%;
-            padding: 7px 10px;
+            padding: 7px calc(20px + 24px + 15px);
+            &:hover {
+                cursor: pointer;
+                background-color: #F3F3F3;
+            }
+        }
+        &>*::selection {
+            background: initial;
+            cursor: default;
         }
     }
 </style>

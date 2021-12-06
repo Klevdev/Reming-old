@@ -77,7 +77,7 @@ router.put("/:id", async(req, res) => {
         const setId = new ObjectId(req.params.id);
         collection = db.collection("materials");
         let set = await collection.findOne({ _id: setId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
-        if (set.userId !== user._id && !set.isPublic) {
+        if (set.userId.toHexString() !== user._id.toHexString()) {
             return res.status(403).send({ error: "У вас нет доступа к этому набору" });
         }
 
@@ -86,7 +86,6 @@ router.put("/:id", async(req, res) => {
             title: req.body.title,
             description: req.body.description,
             isPublic: req.body.isPublic,
-            userId: user._id,
             timeUpdated: Date.now()
         };
 
@@ -124,9 +123,10 @@ router.delete("/:id", async(req, res) => {
     try {
         await mongoClient.connect();
         const db = mongoClient.db('reming');
-        const users = db.collection("users");
+        let collection = db.collection("users");
 
-        const user = await users.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1 } });
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1 } });
+
         if (!user) {
             return res.status(400).send({ error: 'Отсутствует токен' });
         }
@@ -136,19 +136,21 @@ router.delete("/:id", async(req, res) => {
 
         const setId = new ObjectId(req.params.id);
 
+
+        collection = db.collection("materials");
         const set = await collection.findOne({ _id: setId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
-        if (set.userId !== user._id && !set.isPublic) {
+        if (set.userId.toHexString() !== user._id.toHexString()) {
             return res.status(403).send({ error: "У вас нет доступа к этому набору" });
         }
 
-        const studies = db.collection("studies");
-        await studies.deleteOne({ materialId: setId });
+        collection = db.collection("studies");
+        await collection.deleteOne({ materialId: setId });
 
-        const cards = db.collection("cards");
-        await cards.deleteOne({ setId: setId });
+        collection = db.collection("cards");
+        await collection.deleteOne({ setId: setId });
 
-        const materials = db.collection("materials");
-        let deletion = await materials.deleteOne({ _id: setId });
+        collection = db.collection("materials");
+        let deletion = await collection.deleteOne({ _id: setId });
         if (!deletion.deletedCount) {
             return res.status(500).send({ error: 'Ошибка удаления 3' });
         }
@@ -186,7 +188,7 @@ router.get("/:id", async(req, res) => {
 
         collection = db.collection("materials");
         const set = await collection.findOne({ _id: setId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
-        if (set.userId !== user._id && !set.isPublic) {
+        if (!(set.userId.toHexString() === user._id.toHexString() || set.isPublic)) {
             return res.status(403).send({ error: "У вас нет доступа к этому набору" });
         }
 

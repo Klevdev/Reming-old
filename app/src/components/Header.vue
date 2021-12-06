@@ -45,6 +45,7 @@ export default {
 <style lang="scss" scoped>
 
     header {
+        z-index: 100;
         position: fixed;
         top: 0;
         background-color: #FAFAFA;
@@ -55,9 +56,9 @@ export default {
         gap: 50px;
         place-items: center;
         grid-template-rows: 1fr;
-        grid-template-columns: 25px 100px 1fr 200px;
+        grid-template-columns: 25px 100px 1fr 250px;
         box-shadow: 0 0 10px #2c3e5033;
-        padding: 0 50px;
+        padding: 0 27.5px;
     }
 
     #sideBarToggle {

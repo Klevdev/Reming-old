@@ -35,7 +35,7 @@
                 set: {}
             }
         },
-        async beforeMount() {
+        async created() {
             this.set = await store.dispatch('request', {
                 path: `materials/${this.setId}`,
                 method: "GET"
@@ -52,8 +52,13 @@
                         path: `materials/sets/${this.setId}`,
                         method: 'DELETE',
                     });
-                    if (!res.hasOwnProperty('error'))
+                    if (!res.hasOwnProperty('error')) {
+                        store.commit('popupShow',{
+                            type: 'success',
+                            message: 'Материал удалён'
+                        });
                         router.go(-1);
+                    }
                 }
             }
         }

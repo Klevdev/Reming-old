@@ -1,13 +1,16 @@
 <template>
     <section>
-        <h1>Создание нового набора карточек</h1>
+        <h1>{{this.$route.params.setId ? 'Редактирование набора' : 'Создание нового набора' }}</h1>
         <form @submit.prevent="submitForm">
             <Input v-model="formData.title" :attributes="inputAttributes.title"/>
             <label for="description">Описание</label>
             <textarea v-model="formData.description" name="description" id="description" placeholder="Карточки для подготовки к экзамену" maxlength="100"></textarea>
-            <Checkbox v-model="formData.isPublic" :attributes="inputAttributes.isPublic"/>
-            <span v-if="formData.cards.length">Карточки набора: {{this.formData.cards}}</span>
-            <div class="cards">
+<!--            <Checkbox v-model="formData.isPublic" :attributes="inputAttributes.isPublic"/>-->
+            <label>
+                <input type="checkbox" v-model="formData.isPublic"/>Доступен в библиотеке
+            </label>
+            <div v-if="formData.cards.length" class="cards">
+                <span >Карточки набора:</span>
                 <div class="card" v-for="(card, index) in formData.cards" :key="index">
                     <div class="card-idx-delete">
                         <span>{{index+1}}</span>
@@ -21,13 +24,18 @@
                         <textarea v-model="formData.cards[index].answer" placeholder="Обратная сторона" maxlength="100"></textarea>
                     </div>
                     <div class="card-options" style="font-size: 0.8em">
-                        <Checkbox v-model="formData.cards[index].isFlippable" :attributes="inputAttributes.isFlippable" :idx="index"/>
+<!--                        <Checkbox v-model="formData.cards[index].isFlippable" :attributes="inputAttributes.isFlippable" :idx="index"/>-->
+                        <label>
+                            <input type="checkbox" v-model="formData.cards[index].isFlippable"/>Может переворачиваться
+                        </label>
                     </div>
                 </div>
             </div>
             <button type="button" class="btn-add-card" @click="addCard">Добавить карточку</button>
-            <button type="submit" :disabled="formHasError">{{formData.setId ? 'Подтвердить' : 'Создать' }}</button>
-            <button type="button" class="delete-btn" v-if="this.formData.setId" @click="deleteSet">Удалить набор</button>
+            <div style="display: flex; align-items: center; gap: 20px">
+                <button type="submit" :disabled="formHasError">{{this.$route.params.setId ? 'Подтвердить' : 'Создать' }}</button>
+                <a @click="this.$router.go(-1)">Отмена</a>
+            </div>
         </form>
     </section>
 </template>
@@ -69,10 +77,10 @@
                         label: "Доступен из библиотеки",
                         name: "cb-is-public"
                     },
-                    isFlippable: {
-                        label: "Может переворачиваться",
-                        name: "cb-is-flippable"
-                    }
+                    // isFlippable: {
+                    //     label: "Может переворачиваться",
+                    //     name: "cb-is-flippable"
+                    // }
                 }
             }
         },
@@ -84,8 +92,11 @@
                     body: JSON.stringify(this.formData)
                 });
                 if (!result.hasOwnProperty('error')) {
-                    const setId = result.id;
-                    await router.push(`/material/${setId}`)
+                    store.commit('popupShow', {
+                        type: 'success',
+                        message: this.$route.params.setId ? 'Изменения сохранены' : 'Набор сохранён'
+                    })
+                    await router.push(`/material/${result.id}`)
                 }
             },
             addCard() {
@@ -105,10 +116,10 @@
                 this.formData.cards[index].answer = firstSide;
             },
         },
-        async beforeMount() {
-            console.log("Все ошибки ниже можно проигнорировать (П - профессионализм)")
+        async created() {
             this.setId = this.$route.params.setId;
             if (this.setId !== "" && this.setId !== undefined && this.setId !== null) {
+                console.log("Все ошибки ниже можно проигнорировать (П - профессионализм)")
                 this.formData = await store.dispatch('request', {
                     path: `materials/${this.setId}`,
                     method: 'GET'
@@ -168,6 +179,12 @@
         &:focus, &:active {
             border-color: #A1C4FD;
         }
+    }
+
+    input[type=checkbox] {
+        position: relative;
+        top: 2px;
+        margin-right: 5px;
     }
 
     .cards {

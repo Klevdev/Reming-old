@@ -87,7 +87,8 @@
             }
         }
         &:hover {
-            color: #A1C4FD;
+            color: #A1C4FD;;
+            cursor: pointer;
         }
     }
 

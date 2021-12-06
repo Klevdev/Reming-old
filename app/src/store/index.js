@@ -20,6 +20,9 @@ export default createStore({
     },
     mutations: {
         popupShow(state, payload) {
+            if (state.popupShow) {
+                this.commit('popupClose');
+            }
             setTimeout(() => {
                 state.popupShow = true;
                 state.popupMessage = payload.message;
@@ -27,17 +30,14 @@ export default createStore({
                 state.popupTimeoutId = setTimeout(() => {
                     this.commit('popupClose');
                 }, 5000);
-            }, state.popupShow ? 400 : 0);
-            state.popupTimeoutId = null;
-            if (state.popupShow) {
-                this.commit('popupClose');
-            }
+            }, 400);
+            // state.popupTimeoutId = null; // Я не знаю зачем это здесь было
         },
         popupClose(state) {
             clearTimeout(state.popupTimeoutId);
             state.popupTimeoutId = null;
             state.popupShow = false;
-            state.popupAppearenceTimeoutId = setTimeout(() => {
+            setTimeout(() => {
                 state.popupMessage = null;
                 state.popupType = null;
             }, 400);
@@ -59,6 +59,10 @@ export default createStore({
             state.userName = '';
             setCookie('auth', '');
             setCookie('name', '');
+            this.commit('popupShow',{
+                type: 'success',
+                message: 'Вы вышли из профиля'
+            });
         },
         formErrorOccurred(state) {
             state.formHasError = true;

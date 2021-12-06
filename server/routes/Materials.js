@@ -81,7 +81,7 @@ router.get("/:id", async(req, res) => {
         if (!material) {
             return res.status(404).send({ error: 'Материал не найден' });
         }
-        if (material.userId !== user._id && !material.isPublic) {
+        if (!(material.userId.toHexString() === user._id.toHexString() || material.isPublic)) {
             return res.status(403).send({ error: "У вас нет доступа к этому материалу" });
         }
         material.author = user.name;

@@ -105,6 +105,10 @@
                 });
                 answers = [];
                 if (!result.hasOwnProperty('error')) {
+                    store.commit('popupShow', {
+                        type: 'success',
+                        message: 'Ваш результат сохранён'
+                    })
                     await router.push("/");
                 }
             }
