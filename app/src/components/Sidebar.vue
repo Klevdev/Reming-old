@@ -35,7 +35,7 @@
         flex-direction: column;
         justify-content: flex-start;
         align-items: start;
-        transition: width .3s ease-in-out;
+        transition: width .2s ease-in-out;
     }
     .collapsed {
         width: $collapsedWidth;

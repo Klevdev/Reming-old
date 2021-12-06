@@ -102,7 +102,10 @@ router.put("/:id", async(req, res) => {
             $set: { cards: req.body.cards }
         });
         if (!update.matchedCount || !update.modifiedCount) {
-            return res.status(500).send({ error: 'Ошибка базы данных 2' });
+            insert = await collection.insertOne({ setId: setId, cards: req.body.cards });
+            if (!insert) {
+                return res.status(500).send({ error: 'Ошибка базы данных 2' });
+            }
         }
 
         return res.send({ id: setId });
@@ -144,7 +147,7 @@ router.delete("/:id", async(req, res) => {
         }
 
         collection = db.collection("studies");
-        await collection.deleteOne({ materialId: setId });
+        await collection.deleteMany({ materialId: setId });
 
         collection = db.collection("cards");
         await collection.deleteOne({ setId: setId });
@@ -193,10 +196,12 @@ router.get("/:id", async(req, res) => {
         }
 
         collection = db.collection("cards");
-        const cards = await collection.findOne({ setId: setId }, { projection: { _id: 0, setId: 0 } }).then(res => res.cards);
+        const cards = await collection.findOne({ setId: setId }, { projection: { _id: 0, setId: 0 } });
 
-
-        return res.send(cards);
+        if (!cards) {
+            return res.status(200).send({ error: "В наборе нет карточек" });
+        }
+        return res.send(cards.cards);
 
     } catch (err) {
         console.error(err);

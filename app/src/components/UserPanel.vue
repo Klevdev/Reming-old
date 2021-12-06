@@ -23,7 +23,7 @@
         name: "UserPanel",
         data() {
             return {
-                showDropDown: false
+                showDropDown: false,
             }
         },
         computed: {
@@ -118,13 +118,13 @@
         display: block;
         width: $panel-width;
         top: 55px;
-        right: 30px;
+        right: 27.5px;
+        margin: 0;
         list-style: none;
         border-radius: 0 0 3px 3px;
         background-color: #FAFAFA;
 
         & > li {
-            margin: 0;
             text-align: left;
             display: block;
             width: 100%;

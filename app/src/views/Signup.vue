@@ -95,8 +95,8 @@
                     path: "users/signup",
                     body: JSON.stringify(this.formData)
                 });
-                if (res) {
-                    store.commit('userLogIn', {name: res.name, auth: res.auth});
+                if (!res.hasOwnProperty('error')) {
+                    store.commit('userLogIn', {name: res.name, token: res.auth});
                     await router.push('/');
                 }
             }

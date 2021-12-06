@@ -14,31 +14,40 @@ router.get('/:id', async(req, res) => {
 });
 
 router.post('/signup', async(req, res) => {
-    // Проверку занятости логина осуществить на клиенте, но и здесь тоже нужно
-    const user = {
-        email: req.body.email,
-        name: req.body.name,
-        password: hash(req.body.password),
-        timeCreated: Date.now()
-    };
+    // Проверку занятости логина осуществить также на клиенте
 
     try {
         await mongoClient.connect();
         const db = mongoClient.db('reming');
-        const users = db.collection("users");
+        collection = db.collection("users");
 
-        await users.insertOne(user)
+        let check = await collection.findOne({ name: req.body.name });
+        if (check) {
+            return res.status(400).send({ error: "Пользователь с данным именем уже существует" });
+        }
+        check = await collection.findOne({ email: req.body.email });
+        if (check) {
+            return res.status(400).send({ error: "Пользователь с данным e-mail уже существует" });
+        }
+
+        const user = {
+            email: req.body.email,
+            name: req.body.name,
+            password: hash(req.body.password),
+            timeCreated: Date.now()
+        };
+        await collection.insertOne(user)
 
         let tokenRaw;
         let authToken;
         do {
             tokenRaw = random();
             authToken = hash(tokenRaw, 'hex');
-        } while (!users.find({ "auth.token": authToken }));
+        } while (!collection.find({ "auth.token": authToken }));
 
         const timeStamp = Date.now() + 1000 * 60 * 60 * 12;
 
-        await users.updateOne({ _id: user._id }, {
+        await collection.updateOne({ _id: user._id }, {
             $set: {
                 auth: {
                     token: authToken,

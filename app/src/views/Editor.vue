@@ -126,10 +126,11 @@
                 });
                 delete this.formData.author;
                 delete this.formData.timeCreated;
-                this.formData.cards = await store.dispatch('request', {
+                let cards = await store.dispatch('request', {
                     path: `materials/sets/${this.setId}`,
                     method: 'GET'
                 });
+                this.formData.cards = cards.hasOwnProperty('error') ? [] : cards;
             }
         },
         computed: {

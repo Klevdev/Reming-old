@@ -12,7 +12,6 @@
     import Popup from '@/components/Popup';
     import Prompt from '@/components/Prompt';
     import store from "./store";
-    import {getCookie} from "@/lib/cookies";
 
     export default {
         name: 'App',
@@ -32,15 +31,8 @@
                 this.sidebarCollapsed = !this.sidebarCollapsed;
             },
         },
-        beforeMount() {
-            let userAuthCookie = getCookie('auth');
-            if (userAuthCookie !== '' && userAuthCookie !== 'undefined' && userAuthCookie !== undefined) {
-                let userNameCookie = getCookie('name');
-                if (userNameCookie === '' || userNameCookie === undefined) {
-                    console.error('Missing username cookie');
-                }
-                store.commit('userLogIn', {auth: userAuthCookie, name: userNameCookie});
-            }
+        created() {
+            store.commit('userLogIn', false);
         }
     }
 </script>

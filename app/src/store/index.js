@@ -1,14 +1,12 @@
 import { createStore } from "vuex";
 import router from "../router";
 
-import {setCookie} from "../lib/cookies";
-
 export default createStore({
     state() {
         return {
             userLoggedIn: false,
-            userToken: '',
-            userName: '',
+            userToken: null,
+            userName: null,
 
             formHasError: false,
 
@@ -43,22 +41,33 @@ export default createStore({
             }, 400);
         },
         userLogIn(state, payload) {
+            // payload: {name, token}|false
+            let user;
+            if (payload) {
+                localStorage.setItem('user', JSON.stringify({
+                    name: payload.name,
+                    token: payload.token
+                }));
+                user = payload;
+            } else {
+                if (localStorage.getItem('user') === null) return;
+                user = JSON.parse(localStorage.getItem('user'));
+            }
+
             state.userLoggedIn = true;
-            state.userToken = payload.auth;
-            state.userName = payload.name;
-            setCookie('auth', payload.auth);
-            setCookie('name', payload.name);
+            state.userToken = user.token;
+            state.userName = user.name;
+
             this.commit('popupShow',{
                 type: 'success',
-                message: `Добро пожаловать, ${payload.name}`
+                message: `Добро пожаловать, ${state.userName}`
             });
         },
         userLogOut(state) {
+            localStorage.removeItem('user');
+            state.userName = '';
             state.userLoggedIn = false;
             state.userToken = '';
-            state.userName = '';
-            setCookie('auth', '');
-            setCookie('name', '');
             this.commit('popupShow',{
                 type: 'success',
                 message: 'Вы вышли из профиля'
