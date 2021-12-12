@@ -24,7 +24,7 @@
                     [{{this.cards[answer.idx].idx}}] {{this.cards[answer.idx].question}} - {{this.cards[answer.idx].answer}}
                 </li>
             </ul>
-            <button type="button" @click="this.save">Сохранить и выйти</button>
+            <button type="button" @click="this.save">{{userLoggedIn ? 'Завершить и сохранить' : 'Завершить'}}</button>
         </div>
     </section>
 </template>
@@ -32,6 +32,7 @@
 <script>
     import store from "../store";
     import router from "../router";
+    import {mapState} from "vuex";
 
     let answers = [];
     let cards = [];
@@ -47,6 +48,9 @@
                 currentCardSide: 0,
                 currentCardFlipped: false,
             }
+        },
+        computed: {
+            ...mapState(['userLoggedIn'])
         },
         async beforeMount() {
             this.cards = await store.dispatch('request', {
@@ -94,22 +98,30 @@
                 return answers.filter(answer => !answer.correct);
             },
             async save() {
-                const result = await store.dispatch('request', {
-                    path: "studies",
-                    method: "POST",
-                    body: JSON.stringify({
-                        materialType: "set",
-                        materialId: this.setId,
-                        items: answers
-                    })
-                });
-                answers = [];
-                if (!result.hasOwnProperty('error')) {
+                if (!this.userLoggedIn) {
                     store.commit('popupShow', {
-                        type: 'success',
-                        message: 'Ваш результат сохранён'
+                        type: 'info',
+                        message: 'Для сохранения результатов войдите в аккаунт'
                     })
                     await router.push("/");
+                } else {
+                    const result = await store.dispatch('request', {
+                        path: "studies",
+                        method: "POST",
+                        body: JSON.stringify({
+                            materialType: "set",
+                            materialId: this.setId,
+                            items: answers
+                        })
+                    });
+                    answers = [];
+                    if (!result.hasOwnProperty('error')) {
+                        store.commit('popupShow', {
+                            type: 'success',
+                            message: 'Ваш результат сохранён'
+                        })
+                        await router.push("/");
+                    }
                 }
             }
         }

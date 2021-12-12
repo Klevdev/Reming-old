@@ -2,8 +2,10 @@
     <div class="set-info">
         <div class="set-header">
             <h2>{{set.title}}</h2>
-            <button type="button" class="edit-btn" @click="this.$router.push(`/editor/${setId}`)"></button>
-            <button type="button" class="delete-btn" @click="deleteSet"></button>
+            <div v-if="set.author === userName">
+                <button type="button" class="edit-btn" @click="this.$router.push(`/editor/${setId}`)"></button>
+                <button type="button" class="delete-btn" @click="deleteSet"></button>
+            </div>
         </div>
         <dl>
             <dt>Описание</dt>
@@ -26,6 +28,7 @@
 <script>
     import store from "../store";
     import router from "../router";
+    import {mapState} from "vuex";
 
     export default {
         name: "MaterialPage",
@@ -34,6 +37,9 @@
                 setId: this.$route.params.setId,
                 set: {}
             }
+        },
+        computed: {
+            ...mapState(['userName'])
         },
         async created() {
             this.set = await store.dispatch('request', {

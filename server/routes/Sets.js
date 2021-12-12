@@ -6,7 +6,7 @@ const mongoClient = new MongoClient(process.env.DB_URL);
 
 router.post("", async(req, res) => {
     let authToken = req.headers['x-access-token'];
-    if (authToken === '' || authToken === undefined) {
+    if (authToken === '' || authToken === undefined || authToken === null) {
         return res.status(400).send({ error: 'Отсутствует токен' });
     }
 
@@ -57,7 +57,7 @@ router.post("", async(req, res) => {
 
 router.put("/:id", async(req, res) => {
     let authToken = req.headers['x-access-token'];
-    if (authToken === '' || authToken === undefined) {
+    if (authToken === '' || authToken === undefined || authToken === null) {
         return res.status(400).send({ error: 'Отсутствует токен' });
     }
 
@@ -120,7 +120,7 @@ router.put("/:id", async(req, res) => {
 
 router.delete("/:id", async(req, res) => {
     const authToken = req.headers['x-access-token'];
-    if (authToken === '' || authToken === undefined) {
+    if (authToken === '' || authToken === undefined || authToken === null) {
         return res.status(400).send({ error: 'Отсутствует токен' });
     }
     try {
@@ -170,16 +170,66 @@ router.delete("/:id", async(req, res) => {
 router.get("/:id", async(req, res) => {
     // Проверку авторизации следует делать только если набор не публичный
     let authToken = req.headers['x-access-token'];
-    if (authToken === '' || authToken === undefined) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
-    }
+    // if (authToken === '' || authToken === undefined || authToken === null) {
+    //     return res.status(400).send({ error: 'Отсутствует токен' });
+    // }
 
     try {
         await mongoClient.connect();
         const db = mongoClient.db("reming");
         collection = db.collection("users");
 
-        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1 } });
+        let userId;
+        if (authToken !== '' && authToken !== undefined && authToken !== null) {
+            collection = db.collection("users");
+            let user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1, name: 1 } });
+            if (!user) {
+                return res.status(401).send({ error: "Токен недействителен" });
+            }
+            if (user.auth.validThru < Date.now()) {
+                return res.status(401).send({ error: "Время сеанса истекло" });
+            }
+            userId = user._id.toHexString();
+        } else {
+            userId = '';
+        }
+
+        const setId = new ObjectId(req.params.id);
+
+        collection = db.collection("materials");
+        const set = await collection.findOne({ _id: setId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
+        if (!(set.userId.toHexString() === userId || set.isPublic)) {
+            return res.status(403).send({ error: "У вас нет доступа к этому набору" });
+        }
+
+        collection = db.collection("cards");
+        const cards = await collection.findOne({ setId: setId }, { projection: { _id: 0, setId: 0 } });
+
+        if (!cards) {
+            return res.status(200).send({ error: "В наборе нет карточек" });
+        }
+        return res.send(cards.cards);
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ error: err });
+    } finally {
+        await mongoClient.close();
+    }
+});
+
+router.get("/repetitions/:id", async(req, res) => {
+    let authToken = req.headers['x-access-token'];
+    if (authToken === '' || authToken === undefined || authToken === null) {
+        return res.status(400).send({ error: 'Отсутствует токен' });
+    }
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db("reming");
+
+        collection = db.collection("users");
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1, name: 1 } });
         if (!user) {
             return res.status(401).send({ error: "Токен недействителен" });
         }
@@ -201,7 +251,84 @@ router.get("/:id", async(req, res) => {
         if (!cards) {
             return res.status(200).send({ error: "В наборе нет карточек" });
         }
-        return res.send(cards.cards);
+
+        collection = db.collection("repetitons");
+        let repetitions = await collection.findOne({ setId: setId }, { projection: { _id: 0, setId: 0 } });
+
+        if (!repetitions) {
+            repetitions = await collection.insertOne({
+                userId: user._id,
+                setId: setId,
+                curr: cards.cards.map(card => card.idx),
+                next: []
+            });
+        }
+        return res.send(cards.cards.filter(card => repetitions.includes(card.idx)));
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ error: err });
+    } finally {
+        await mongoClient.close();
+    }
+});
+
+router.put("/repetitions/:id", async(req, res) => {
+    let authToken = req.headers['x-access-token'];
+    if (authToken === '' || authToken === undefined || authToken === null) {
+        return res.status(400).send({ error: 'Отсутствует токен' });
+    }
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db("reming");
+
+        collection = db.collection("users");
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1, name: 1 } });
+        if (!user) {
+            return res.status(401).send({ error: "Токен недействителен" });
+        }
+        if (user.auth.validThru < Date.now()) {
+            return res.status(401).send({ error: "Время сеанса истекло" });
+        }
+
+        const setId = new ObjectId(req.params.id);
+
+        collection = db.collection("materials");
+        const set = await collection.findOne({ _id: setId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
+        if (!(set.userId.toHexString() === user._id.toHexString() || set.isPublic)) {
+            return res.status(403).send({ error: "У вас нет доступа к этому набору" });
+        }
+
+        collection = db.collection("cards");
+        const cards = await collection.findOne({ setId: setId }, { projection: { _id: 0, setId: 0 } });
+
+        if (!cards) {
+            return res.status(200).send({ error: "В наборе нет карточек" });
+        }
+
+        collection = db.collection("repetitons");
+        let repetitions = await collection.findOne({ setId: setId }, { projection: { _id: 0, setId: 0 } });
+
+        if (!repetitions) {
+            return res.status(400).send({ error: "Для данного набора нет записей о повторениях" });
+        }
+
+        let repNextOld = repetitions.next;
+        let repCurrNew = repNextOld.map(idx => !repCurrNew.includes(idx)).concat(repCurrNew);
+
+        const update = await collection.updateOne({
+            userId: user._id,
+            setId: setId
+        }, {
+            curr: repCurrNew,
+            next: req.body.correct
+        });
+        if (!update.matchedCount || !update.modifiedCount) {
+            return res.status(500).send({ error: 'Ошибка БД' });
+        } else {
+            return res.send({ ok: 1 });
+        }
 
     } catch (err) {
         console.error(err);

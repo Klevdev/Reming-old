@@ -114,7 +114,7 @@ router.post('/login', async(req, res) => {
 
 router.post('/logout', async(req, res) => {
     let authToken = req.headers['x-access-token'];
-    if (authToken === '' || authToken === undefined) {
+    if (authToken === '' || authToken === undefined || authToken === null) {
         return res.status(400).send({ error: 'Отсутствует токен' });
     }
 
@@ -144,7 +144,7 @@ router.post('/logout', async(req, res) => {
 
 router.put('', async(req, res) => {
     let authToken = req.headers['x-access-token'];
-    if (authToken === '' || authToken === undefined) {
+    if (authToken === '' || authToken === undefined || authToken === null) {
         return res.status(400).send({ error: 'Отсутствует токен' });
     }
 
@@ -188,7 +188,7 @@ router.put('', async(req, res) => {
 
 router.delete('', async(req, res) => {
     let authToken = req.headers['x-access-token'];
-    if (authToken === '' || authToken === undefined) {
+    if (authToken === '' || authToken === undefined || authToken === null) {
         return res.status(400).send({ error: 'Отсутствует токен' });
     }
 

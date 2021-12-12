@@ -27,7 +27,7 @@ router.get("/public", async(req, res) => {
 
 router.get("/personal", async(req, res) => {
     let authToken = req.headers['x-access-token'];
-    if (authToken === '' || authToken === undefined) {
+    if (authToken === '' || authToken === undefined || authToken === null) {
         return res.status(400).send({ error: 'Отсутствует токен' });
     }
 
@@ -57,21 +57,27 @@ router.get("/personal", async(req, res) => {
 
 router.get("/:id", async(req, res) => {
     let authToken = req.headers['x-access-token'];
-    if (authToken === '' || authToken === undefined) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
-    }
+    // if (authToken === '' || authToken === undefined || authToken === null) {
+    //     return res.status(400).send({ error: 'Отсутствует токен' });
+    // }
 
     try {
         await mongoClient.connect();
         const db = mongoClient.db("reming");
 
-        collection = db.collection("users");
-        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1, name: 1 } });
-        if (!user) {
-            return res.status(401).send({ error: "Токен недействителен" });
-        }
-        if (user.auth.validThru < Date.now()) {
-            return res.status(401).send({ error: "Время сеанса истекло" });
+        let userId;
+        if (authToken !== '' && authToken !== undefined && authToken !== null) {
+            collection = db.collection("users");
+            let user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1, name: 1 } });
+            if (!user) {
+                return res.status(401).send({ error: "Токен недействителен" });
+            }
+            if (user.auth.validThru < Date.now()) {
+                return res.status(401).send({ error: "Время сеанса истекло" });
+            }
+            userId = user._id.toHexString();
+        } else {
+            userId = '';
         }
 
         const materialId = new ObjectId(req.params.id);
@@ -81,9 +87,11 @@ router.get("/:id", async(req, res) => {
         if (!material) {
             return res.status(404).send({ error: 'Материал не найден' });
         }
-        if (!(material.userId.toHexString() === user._id.toHexString() || material.isPublic)) {
+        if (!(material.userId.toHexString() === userId || material.isPublic)) {
             return res.status(403).send({ error: "У вас нет доступа к этому материалу" });
         }
+        collection = db.collection("users");
+        user = await collection.findOne({ _id: material.userId }, { projection: { _id: 0, name: 1 } });
         material.author = user.name;
         delete material.userId;
 

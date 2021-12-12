@@ -5,8 +5,8 @@ export default createStore({
     state() {
         return {
             userLoggedIn: false,
-            userToken: null,
-            userName: null,
+            userName: undefined,
+            userToken: '',
 
             formHasError: false,
 
@@ -65,8 +65,8 @@ export default createStore({
         },
         userLogOut(state) {
             localStorage.removeItem('user');
-            state.userName = '';
             state.userLoggedIn = false;
+            state.userName = undefined;
             state.userToken = '';
             this.commit('popupShow',{
                 type: 'success',

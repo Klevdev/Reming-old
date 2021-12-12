@@ -135,17 +135,17 @@ const routes = [
         path: '/material/:setId',
         name: 'MaterialPage',
         props: route => ({ setId: route.query.setId}),
-        beforeEnter: (to, from, next) => {
-            if (!store.state.userLoggedIn) {
-                store.commit('popupShow',{
-                    type: 'info',
-                    message: 'Для доступа к разделу необходимо войти в аккаунт'
-                });
-                next("/login");
-            } else {
-                next();
-            }
-        },
+        // beforeEnter: (to, from, next) => {
+        //     if (!store.state.userLoggedIn) {
+        //         store.commit('popupShow',{
+        //             type: 'info',
+        //             message: 'Для доступа к разделу необходимо войти в аккаунт'
+        //         });
+        //         next("/login");
+        //     } else {
+        //         next();
+        //     }
+        // },
         component: function () {
             return import('../views/MaterialPage')
         },
@@ -157,17 +157,17 @@ const routes = [
         path: '/study/:setId',
         name: 'StudyPage',
         props: route => ({ setId: route.query.setId}),
-        beforeEnter: (to, from, next) => {
-            if (!store.state.userLoggedIn) {
-                store.commit('popupShow',{
-                    type: 'info',
-                    message: 'Для доступа к разделу необходимо войти в аккаунт'
-                });
-                next("/login");
-            } else {
-                next();
-            }
-        },
+        // beforeEnter: (to, from, next) => {
+        //     if (!store.state.userLoggedIn) {
+        //         store.commit('popupShow',{
+        //             type: 'info',
+        //             message: 'Для доступа к разделу необходимо войти в аккаунт'
+        //         });
+        //         next("/login");
+        //     } else {
+        //         next();
+        //     }
+        // },
         component: function () {
             return import('../views/Study')
         },
