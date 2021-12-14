@@ -13,7 +13,9 @@ export default createStore({
             popupMessage: null,
             popupType: null,
             popupShow: false,
-            popupTimeoutId: null
+            popupTimeoutId: null,
+
+            recentMaterials: null,
         }
     },
     mutations: {
@@ -78,6 +80,25 @@ export default createStore({
         },
         formErrorSolved(state) {
             state.formHasError = false;
+        },
+        updateRecentMaterials(state, payload) {
+            if (!state.recentMaterials) {
+                state.recentMaterials = localStorage.getItem('recentMaterials') ? JSON.parse(localStorage.getItem('recentMaterials')) : [];
+            }
+            if (payload === null) return;
+
+            for (let i = 0; i < state.recentMaterials.length; i++) {
+                let item = state.recentMaterials[i];
+                if (item.id === payload.id) {
+                    state.recentMaterials.splice(i, 1);
+                }
+            }
+
+            state.recentMaterials.unshift(payload);
+            if (state.recentMaterials.length >= 5) {
+                state.recentMaterials.pop();
+            }
+            localStorage.setItem('recentMaterials', JSON.stringify(state.recentMaterials));
         }
     },
     actions: {

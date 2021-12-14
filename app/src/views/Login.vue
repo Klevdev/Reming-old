@@ -94,7 +94,8 @@
         gap: 10px;
         background-color: #FAFAFA;
         padding: 20px 25px;
-        border-radius: 5px;
+        border-radius: 0px;
+        border: 1px solid #DDD;
     }
 
 </style>

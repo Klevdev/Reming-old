@@ -3,7 +3,7 @@
     <Sidebar :collapsed="sidebarCollapsed"/>
     <Popup/>
     <Prompt/>
-    <router-view/>
+    <router-view :key="$route.fullPath"/>
 </template>
 
 <script>
@@ -91,7 +91,7 @@
     button, button[type='submit'], button[type='button'] {
         background-color: #4285F4;
         border: none;
-        border-radius: 3px;
+        border-radius: 0;
         padding: 7px 10px;
         transition: background-color .2s;
 

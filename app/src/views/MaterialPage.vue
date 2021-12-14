@@ -2,7 +2,7 @@
     <div class="set-info">
         <div class="set-header">
             <h2>{{set.title}}</h2>
-            <div v-if="set.author === userName">
+            <div v-if="set.author === userName" style="display: flex; gap: 15px; justify-content: flex-start;">
                 <button type="button" class="edit-btn" @click="this.$router.push(`/editor/${setId}`)"></button>
                 <button type="button" class="delete-btn" @click="deleteSet"></button>
             </div>
@@ -50,6 +50,22 @@
                 router.go(-1);
             }
             this.set.timeCreated = new Date(this.set.timeCreated).toLocaleDateString("ru-RU");
+
+            store.commit('updateRecentMaterials', {
+                id: this.$route.params.setId,
+                title: this.set.title
+            });
+        },
+        async beforeRouteUpdate(to, from, next) {
+            this.set = await store.dispatch('request', {
+                path: `materials/${this.setId}`,
+                method: "GET"
+            });
+            if (this.set.hasOwnProperty('error')) {
+                router.go(-1);
+            }
+            this.set.timeCreated = new Date(this.set.timeCreated).toLocaleDateString("ru-RU");
+            next();
         },
         methods: {
             async deleteSet() {
@@ -75,7 +91,7 @@
     .set-info {
         margin: 0 auto;
         width: 400px;
-        box-shadow: 0 0 10px #2c3e5033, 0 20px 20px #2c3e5011;
+        box-shadow: 0 0 10px #DDD, 0 20px 20px #DDD;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
@@ -83,7 +99,8 @@
         gap: 10px;
         background-color: #FAFAFA;
         padding: 20px 25px;
-        border-radius: 5px;
+        border-radius: 0;
+        border: 1px solid #DDD;
     }
 
     .set-header {

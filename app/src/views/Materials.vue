@@ -37,9 +37,12 @@
 </script>
 
 <style scoped lang="scss">
+    h1 {
+        margin-left: 250px;
+        text-align: left;
+    }
     .sets-wrapper {
-        width: 1100px;
-        margin: 0 auto;
+        margin-left: 250px;
         padding: 20px 0;
         display: grid;
         grid-template-columns: repeat(5, 200px);
@@ -51,15 +54,15 @@
     .set {
         padding: 15px;
         text-align: left;
-        /*border: 1px solid #AAAAAA;*/
-        border-radius: 5px;
-        box-shadow: 0 0 10px #2c3e5033, 0 20px 20px #2c3e5011;
+        box-shadow: 0 10px 25px #2c3e5033, 0 20px 20px #2c3e5011;
+        border-radius: 0;
         width: 200px;
         height: 150px;
         background-color: #FAFAFA;
-        transition: border .2s;
+        transition: border .2s, box-shadow .2s;
+        border: 1px solid #DDD;
         &:hover {
-            box-shadow: 0 10px 25px #2c3e5033, 0 20px 20px #2c3e5011;
+            box-shadow: 0 0 10px #2c3e5033, 0 20px 20px #2c3e5011;
         }
     }
     .set-link {

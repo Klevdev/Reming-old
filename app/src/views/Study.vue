@@ -52,7 +52,7 @@
         computed: {
             ...mapState(['userLoggedIn'])
         },
-        async beforeMount() {
+        async created() {
             this.cards = await store.dispatch('request', {
                 method: "GET",
                 path: `materials/sets/${this.setId}`
@@ -219,7 +219,7 @@
         justify-content: center;
         background-color: #FAFAFA;
         padding: 20px 25px;
-        border-radius: 5px;
+        border: 1px solid #DDD;
 
         &>ul {
             list-style: none;

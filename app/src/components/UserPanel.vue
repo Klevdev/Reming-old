@@ -1,7 +1,7 @@
 <template>
-    <div v-if="!userLoggedIn">
-        <router-link class="login-button" to="/login">Войти</router-link>
-<!--        <router-link to="/signup">Зарегистрироваться</router-link>-->
+    <div v-if="!userLoggedIn" class="guest-panel" >
+        <router-link to="/login">Войти</router-link>
+        <router-link to="/signup">Зарегистрироваться</router-link>
     </div>
     <div v-if="userLoggedIn" class="user-panel" :class="{'show-dropdown': !showDropDown}" @click="showDropDown = !showDropDown" >
         <img id="user-avatar" src="../assets/icons/user.svg" alt="default avatar">
@@ -49,19 +49,10 @@
 <style scoped lang="scss">
     $panel-width: 250px;
     .login-button {
-        background-color: #4285F4;
-        border: none;
-        border-radius: 3px;
-        padding: 7px 10px;
-        transition: background-color .2s;
         color: black;
-
-        &:hover, &:active {
-            background-color: #A1C4FD;
-        }
     }
 
-    .user-panel {
+    .user-panel, .guest-panel {
         &>*::selection {
             background: initial;
         }
@@ -81,6 +72,10 @@
             background-color: #F3F3F3;
             cursor: pointer;
         }
+    }
+    .guest-panel > :first-child {
+        padding-right: 5px;
+        border-right: 2px solid #666;
     }
 
     #user-avatar {
