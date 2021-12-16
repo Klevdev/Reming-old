@@ -2,9 +2,11 @@
     <div class="set-info">
         <div class="set-header">
             <h2>{{set.title}}</h2>
-            <div v-if="set.author === userName" style="display: flex; gap: 15px; justify-content: flex-start;">
-                <button type="button" class="edit-btn" @click="this.$router.push(`/editor/${setId}`)"></button>
-                <button type="button" class="delete-btn" @click="deleteSet"></button>
+            <div class="btns" style="justify-content: flex-end">
+                <button v-if="!favorites.filter(item => item._id === setId).length" type="button" class="btn favorites-add-btn" @click="favoritesAdd(setId)"></button>
+                <button v-if="favorites.filter(item => item._id === setId).length" type="button" class="btn favorites-remove-btn" @click="favoritesRemove(setId)"></button>
+                <button v-if="set.author === userName" type="button" class="btn edit-btn" @click="this.$router.push(`/editor/${setId}`)"></button>
+                <button v-if="set.author === userName" type="button" class="btn delete-btn" @click="deleteSet"></button>
             </div>
         </div>
         <dl>
@@ -28,7 +30,7 @@
 <script>
     import store from "../store";
     import router from "../router";
-    import {mapState} from "vuex";
+    import {mapState, mapActions} from "vuex";
 
     export default {
         name: "MaterialPage",
@@ -39,7 +41,7 @@
             }
         },
         computed: {
-            ...mapState(['userName'])
+            ...mapState(['userName', 'favorites'])
         },
         async created() {
             this.set = await store.dispatch('request', {
@@ -52,22 +54,12 @@
             this.set.timeCreated = new Date(this.set.timeCreated).toLocaleDateString("ru-RU");
 
             store.commit('updateRecentMaterials', {
-                id: this.$route.params.setId,
+                _id: this.$route.params.setId,
                 title: this.set.title
             });
         },
-        async beforeRouteUpdate(to, from, next) {
-            this.set = await store.dispatch('request', {
-                path: `materials/${this.setId}`,
-                method: "GET"
-            });
-            if (this.set.hasOwnProperty('error')) {
-                router.go(-1);
-            }
-            this.set.timeCreated = new Date(this.set.timeCreated).toLocaleDateString("ru-RU");
-            next();
-        },
         methods: {
+            ...mapActions(['favoritesAdd', 'favoritesRemove']),
             async deleteSet() {
                 if (confirm("Вы уверены, что хотите удалить набор?")) {
                     const res = await store.dispatch('request',{
@@ -106,7 +98,7 @@
     .set-header {
         width: 100%;
         display: grid;
-        grid-template-columns: 1fr 35px 35px;
+        grid-template-columns: 1fr 90px;
         align-items: center;
 
         & > h2 {
@@ -139,18 +131,20 @@
     }
 
     .btns {
+        width: 100%;
+        gap: 15px;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    .edit-btn {
+    .btn {
+        background-color: initial;
+        background-size: 20px 20px;
+        background-repeat: no-repeat;
+        background-position: center center;
         padding-bottom: .2em;
         color: black;
-        font-weight: bold;
-        font-size: 1.3em;
-        background: url("../assets/icons/edit.svg") center center no-repeat;
-        background-size: 20px 20px;
         width: 35px;
         height: 35px;
         &:hover {
@@ -158,18 +152,16 @@
             background-color: initial;
         }
     }
+    .favorites-add-btn {
+        background-image: url("../assets/icons/favorites-add-gold.svg");
+    }
+    .favorites-remove-btn {
+        background-image: url("../assets/icons/favorites-remove.svg");
+    }
+    .edit-btn {
+        background-image: url("../assets/icons/edit.svg");
+    }
     .delete-btn {
-        padding-bottom: .2em;
-        color: black;
-        font-weight: bold;
-        font-size: 1.3em;
-        background: url("../assets/icons/delete.svg") center center no-repeat;
-        background-size: 20px 20px;
-        width: 35px;
-        height: 35px;
-        &:hover {
-            cursor: pointer;
-            background-color: initial;
-        }
+        background-image: url("../assets/icons/delete.svg");
     }
 </style>

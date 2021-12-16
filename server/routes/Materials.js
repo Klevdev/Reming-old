@@ -5,6 +5,7 @@ const { MongoClient, ObjectId } = require('mongodb');
 const mongoClient = new MongoClient(process.env.DB_URL);
 
 router.use("/sets", require('./Sets'));
+router.use("/collections", require('./Collections'));
 
 router.get("/public", async(req, res) => {
     try {

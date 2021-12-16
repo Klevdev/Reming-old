@@ -16,6 +16,7 @@ export default createStore({
             popupTimeoutId: null,
 
             recentMaterials: null,
+            favorites: null,
         }
     },
     mutations: {
@@ -89,7 +90,7 @@ export default createStore({
 
             for (let i = 0; i < state.recentMaterials.length; i++) {
                 let item = state.recentMaterials[i];
-                if (item.id === payload.id) {
+                if (item._id === payload._id) {
                     state.recentMaterials.splice(i, 1);
                 }
             }
@@ -99,7 +100,7 @@ export default createStore({
                 state.recentMaterials.pop();
             }
             localStorage.setItem('recentMaterials', JSON.stringify(state.recentMaterials));
-        }
+        },
     },
     actions: {
         async request(context, params) {
@@ -126,123 +127,38 @@ export default createStore({
             }
             return response;
         },
-        async sendSet(context, set) {
-            const res = await fetch('http://localhost:3000/set/new', {
+        async favoritesFetch(context) {
+            const res = await context.dispatch('request',{
+                path: `users/favorites`,
+                method: 'GET',
+            });
+            if (!res.hasOwnProperty('error')) {
+                context.state.favorites = res;
+            }
+        },
+        async favoritesAdd(context, materialId) {
+            const res = await context.dispatch('request',{
+                path: `users/favorites/${materialId}`,
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    auth: context.state.userToken,
-                    ...set
-                }),
             });
-            let response = await res.json();
-            if (response.hasOwnProperty('error')) {
-                console.error(res.error);
+            if (!res.hasOwnProperty('error')) {
+                context.state.favorites.push(res);
                 context.commit('popupShow',{
-                    type: 'error',
-                    message: res.error
-                });
-            } else {
-                await router.push('/');
-            }
-        },
-        async getUserSets(context) {
-            const path = 'http://localhost:3000/set/myall';
-            const query = `?auth=${context.state.userToken}`;
-            const res = await fetch(path+query, {
-                method: 'GET',
-                headers: {},
-            });
-            let response = await res.json();
-            if (response.hasOwnProperty('error')) {
-                context.commit('popupShow',{
-                    type: 'error',
-                    message: res.error
-                });
-            } else {
-                return response;
-            }
-        },
-        async getSet(context, id) {
-            const path = 'http://localhost:3000/set/view';
-            const query = `?auth=${context.state.userToken}&id=${id}`;
-            const res = await fetch(path+query, {
-                method: 'GET',
-                headers: {},
-            });
-            let response = await res.json();
-            if (response.hasOwnProperty('error')) {
-                this.commit('popupShow',{
-                    type: 'error',
-                    message: `Ошибка: ${response.error}`
-                });
-            } else {
-                return response;
-            }
-        },
-        async getSetCards(context, id) {
-            const path = 'http://localhost:3000/set/cards';
-            const query = `?auth=${context.state.userToken}&id=${id}`;
-            const res = await fetch(path+query, {
-                method: 'GET',
-                headers: {},
-            });
-            let response = await res.json();
-            if (response.hasOwnProperty('error')) {
-                this.commit('popupShow',{
-                    type: 'error',
-                    message: `Ошибка: ${response.error}`
-                });
-            } else {
-                return response;
-            }
-        },
-        async saveStudyCards(context, params) {
-            const path = 'http://localhost:3000/set/saveStudy';
-            const res = await fetch(path, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    auth: context.state.userToken,
-                    setId: params.setId,
-                    cards: params.cards
-                })
-            });
-            let response = await res.json();
-            if (response.hasOwnProperty('error')) {
-                this.commit('popupShow',{
-                    type: 'error',
-                    message: `Ошибка: ${response.error}`
-                });
-            } else {
-                context.commit('popupShow', {
                     type: 'success',
-                    message: 'Результат записан'
+                    message: 'Материал добавлен в избранное'
                 });
-                router.go(-1);
             }
         },
-        async deleteSet(context, id) {
-            const path = 'http://localhost:3000/set';
-            const query = `?auth=${context.state.userToken}&id=${id}`;
-            const res = await fetch(path+query, {
+        async favoritesRemove(context, materialId) {
+            const res = await context.dispatch('request',{
+                path: `users/favorites/${materialId}`,
                 method: 'DELETE',
-                headers: {},
             });
-            let response = await res.json();
-            if (response.hasOwnProperty('error')) {
-                this.commit('popupShow',{
-                    type: 'error',
-                    message: `Ошибка: ${response.error}`
-                });
-            } else {
-                this.commit('popupShow',{
+            if (!res.hasOwnProperty('error')) {
+                context.state.favorites = context.state.favorites.filter(item => item._id !== materialId);
+                context.commit('popupShow',{
                     type: 'success',
-                    message: `Набор удалён`
+                    message: 'Материал удалён из избранного'
                 });
             }
         },

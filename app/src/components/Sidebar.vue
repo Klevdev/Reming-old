@@ -5,30 +5,33 @@
         <router-link class="menu-item editor" to="/editor">Конструктор</router-link>
         <router-link class="menu-item mymaterials" to="/mymaterials">Мои наборы</router-link>
         <ul class="sub-nav">
-            <router-link v-for="item in recentMaterials" :to="'/material/'+item.id">{{item.title}}</router-link>
+            <router-link v-for="item in recentMaterials" :to="'/material/'+item._id">{{item.title}}</router-link>
         </ul>
         <router-link class="menu-item favorites" to="/mymaterials#favorites">Избранное</router-link>
         <ul class="sub-nav">
+            <router-link v-for="item in favorites" :to="'/material/'+item._id">{{item.title}}</router-link>
         </ul>
         <router-link class="menu-item about" to="/about">О сайте</router-link>
     </nav>
 </template>
 
 <script>
-    import {mapState, mapMutations} from "vuex";
+    import {mapState, mapMutations, mapActions} from "vuex";
     export default {
         name: "Sidebar",
         props: {
             collapsed: Boolean,
         },
         computed: {
-            ...mapState(['recentMaterials']),
+            ...mapState(['recentMaterials', 'favorites']),
         },
         methods: {
-            ...mapMutations(['updateRecentMaterials'])
+            ...mapMutations(['updateRecentMaterials']),
+            ...mapActions(['favoritesFetch'])
         },
         created() {
             this.updateRecentMaterials(null);
+            this.favoritesFetch();
         }
     }
 </script>
@@ -72,7 +75,7 @@
 
         & > a {
             color: black;
-            display: block !important;
+            display: block;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -99,7 +102,7 @@
         background-image: url("../assets/icons/edit-black.svg");
     }
     .menu-item.mymaterials {
-        background-image: url("../assets/icons/set-black.svg");
+        background-image: url("../assets/icons/folder.svg");
     }
     .menu-item.favorites {
         background-image: url("../assets/icons/favorites.svg");

@@ -198,6 +198,9 @@ router.get("/:id", async(req, res) => {
 
         collection = db.collection("materials");
         const set = await collection.findOne({ _id: setId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
+        if (!material) {
+            return res.status(400).send({ error: "Материал не найден" });
+        }
         if (!(set.userId.toHexString() === userId || set.isPublic)) {
             return res.status(403).send({ error: "У вас нет доступа к этому набору" });
         }

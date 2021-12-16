@@ -5,14 +5,6 @@ const { hash, random } = require("../core/cryptoFunctions");
 
 const mongoClient = new MongoClient(process.env.DB_URL);
 
-router.get('', async(req, res) => {
-    res.send({ error: "NOT AVAILABLE" });
-});
-
-router.get('/:id', async(req, res) => {
-    res.send({ error: "NOT AVAILABLE" });
-});
-
 router.post('/signup', async(req, res) => {
     // Проверку занятости логина осуществить также на клиенте
 
@@ -201,9 +193,7 @@ router.delete('', async(req, res) => {
         const users = db.collection("users");
 
         const user = await users.findOne({ 'auth.token': authToken }, { projection: { auth: 1 } });
-        if (!user) {
-            return res.status(400).send({ error: 'Отсутствует токен' });
-        }
+
         const authValidThru = user.auth.validThru;
         if (authValidThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
@@ -226,6 +216,140 @@ router.delete('', async(req, res) => {
     } finally {
         await mongoClient.close();
     }
+});
+
+
+router.post('/favorites/:materialId', async(req, res) => {
+    let authToken = req.headers['x-access-token'];
+    if (authToken === '' || authToken === undefined || authToken === null) {
+        return res.status(400).send({ error: 'Отсутствует токен' });
+    }
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db('reming');
+        let collection = db.collection("users");
+
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { auth: 1, favorites: 1 } });
+
+        const authValidThru = user.auth.validThru;
+        if (authValidThru < Date.now()) {
+            return res.status(401).send({ error: "Время сеанса истекло" });
+        }
+
+        const materialId = new ObjectId(req.params.materialId);
+
+        const check = user.favorites.filter(itemId => itemId.toHexString() === req.params.materialId);
+
+        if (check.length) {
+            return res.status(409).send({ error: 'Материал уже в избранном' });
+        }
+
+        const update = await collection.updateOne({ _id: user._id }, {
+            $push: {
+                favorites: materialId,
+                // favorites: {
+                //     materialId: materialId,
+                //     timeAdded: Date.now()
+                // }
+            }
+        });
+        if (!update) {
+            return res.status(500).send({ error: 'Ошибка базы данных' });
+        }
+
+        collection = db.collection("materials");
+        const material = await collection.findOne({ _id: materialId }, { projection: { type: 1, title: 1 } })
+
+        return res.send({ type: material.type, title: material.title });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ error: err });
+    } finally {
+        await mongoClient.close();
+    }
+});
+
+router.get('/favorites', async(req, res) => {
+    let authToken = req.headers['x-access-token'];
+    if (authToken === '' || authToken === undefined || authToken === null) {
+        return res.status(400).send({ error: 'Отсутствует токен' });
+    }
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db('reming');
+        let collection = db.collection("users");
+
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { auth: 1, favorites: 1 } });
+
+        const authValidThru = user.auth.validThru;
+        if (authValidThru < Date.now()) {
+            return res.status(401).send({ error: "Время сеанса истекло" });
+        }
+
+        collection = db.collection("materials");
+        const materials = await collection.find({ _id: { $in: user.favorites } }, { projection: { _id: 1, title: 1 } }).toArray();
+        if (req.query.limit) {
+            materials = materials.splice(0, req.query.limit);
+        }
+
+        return res.send(materials);
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ error: err });
+    } finally {
+        await mongoClient.close();
+    }
+});
+
+router.delete('/favorites/:materialId', async(req, res) => {
+    let authToken = req.headers['x-access-token'];
+    if (authToken === '' || authToken === undefined || authToken === null) {
+        return res.status(400).send({ error: 'Отсутствует токен' });
+    }
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db('reming');
+        let collection = db.collection("users");
+
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { auth: 1 } });
+
+        const authValidThru = user.auth.validThru;
+        if (authValidThru < Date.now()) {
+            return res.status(401).send({ error: "Время сеанса истекло" });
+        }
+
+        const materialId = new ObjectId(req.params.materialId);
+
+        const update = await collection.updateOne({ _id: user._id }, {
+            $pull: {
+                favorites: materialId
+            }
+        });
+        if (!update) {
+            return res.status(500).send({ error: 'Ошибка базы данных' });
+        }
+
+        return res.send({ ok: 1 });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ error: err });
+    } finally {
+        await mongoClient.close();
+    }
+});
+
+router.get('', async(req, res) => {
+    res.send({ error: "NOT AVAILABLE" });
+});
+
+router.get('/:id', async(req, res) => {
+    res.send({ error: "NOT AVAILABLE" });
 });
 
 module.exports = router;

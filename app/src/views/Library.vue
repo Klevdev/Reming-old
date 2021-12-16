@@ -5,9 +5,9 @@
         <br>
         ...но вы могли бы <router-link to="/editor">добавить</router-link> сюда что-то своё
     </div>
-    <section class="sets-wrapper">
-        <div class="set" v-for="set in sets">
-            <router-link class="set-link" :to="'/material/'+set._id">
+    <section class="materials-wrapper">
+        <div :class="`material ${set.type}`" v-for="set in sets">
+            <router-link class="material-link" :to="'/material/'+set._id">
                 <div style="min-height: 100%">
                     <h3>{{set.title}}</h3>
                     <div class="description">{{set.description}}</div>
@@ -42,7 +42,7 @@
         margin-left: 250px;
         text-align: left;
     }
-    .sets-wrapper {
+    .materials-wrapper {
         margin-left: 250px;
         padding: 20px 0;
         display: grid;
@@ -52,7 +52,19 @@
         place-items: center;
         row-gap: 10px;
     }
-    .set {
+
+    .material.set {
+        background-image: url("../assets/icons/set-black.svg");
+    }
+
+    .material.collection {
+        background-image: url("../assets/icons/folder.svg");
+    }
+
+    .material {
+        background-position: 10% 90%;
+        background-size: 25px 25px;
+        background-repeat: no-repeat;
         padding: 15px;
         text-align: left;
         box-shadow: 0 10px 25px #2c3e5033, 0 20px 20px #2c3e5011;
@@ -66,7 +78,7 @@
             box-shadow: 0 0 10px #2c3e5033, 0 20px 20px #2c3e5011;
         }
     }
-    .set-link {
+    .material-link {
         color: inherit;
         &:hover > .start-btn {
             opacity: 100%;
