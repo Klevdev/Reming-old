@@ -22,7 +22,7 @@
             <dd>Скоро будут</dd>
         </dl>
         <div class="btns">
-            <router-link class="start-btn" :to="'/study/'+setId">►</router-link>
+            <router-link v-if="set.type === 'set'" class="start-btn" :to="'/study/'+setId"/>
         </div>
     </div>
 </template>
@@ -126,15 +126,20 @@
             font-weight: bold;
         }
     }
+
     .start-btn {
-        padding: 10px 10px 10px 12px;
-        color: white;
-        font-size: 1em;
+        background-image: url("../assets/icons/play-white.svg");
         background-color: #3EAF7C;
-        border-radius: 50%;
+        background-size: 35px 35px;
+        background-repeat: no-repeat;
+        background-position: center center;
+        display: block;
         width: 35px;
         height: 35px;
+        color: white;
+        border-radius: 50%;
         transition: background-color .2s, opacity .1s;
+
         &:hover {
             cursor: pointer;
             background-color: #4EBF8C;

@@ -202,7 +202,7 @@ router.get("/:id", async(req, res) => {
         const collectionId = new ObjectId(req.params.id);
 
         collection = db.collection("materials");
-        const material = await collection.findOne({ _id: collectionId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
+        const material = await collection.findOne({ _id: collectionId }, { projection: { _id: 0, isPublic: 1, userId: 1, title: 1 } });
         if (!material) {
             return res.status(400).send({ error: "Материал не найден" });
         }
@@ -216,7 +216,7 @@ router.get("/:id", async(req, res) => {
         collection = db.collection("materials");
         const materials = await collection.find({ _id: { $in: collIdArray } }).toArray();
 
-        return res.send(materials);
+        return res.send({ title: material.title, materials: materials });
 
     } catch (err) {
         console.error(err);

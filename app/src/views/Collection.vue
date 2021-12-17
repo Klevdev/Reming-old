@@ -1,12 +1,11 @@
 <template>
-    <h1>Мои наборы</h1>
+    <h1>{{this.collectionTitle}}</h1>
     <div v-if="!materials.length">
-        У вас пока нет материалов. Но вы можете
-        <router-link to="/editor">создать их</router-link>
+        Коллекция пуста
     </div>
     <section class="materials-wrapper">
         <div v-for="material in materials" :class="`material ${material.type}`">
-            <router-link class="material-link" :to="material.type === 'set' ? '/material/'+material._id : '/collection/'+material._id">
+            <router-link class="material-link" :to="'/material/'+material._id">
                 <div style="min-height: 100%">
                     <h3>{{material.title}}</h3>
                     <div class="description">{{material.description}}</div>
@@ -23,17 +22,21 @@
     import store from "../store";
 
     export default {
-        name: "Materials",
+        name: "Collection",
         data() {
             return {
+                collectionTitle: '',
+                collectionId: this.$route.params.collectionId,
                 materials: [],
             }
         },
         async created() {
-            this.materials = await store.dispatch('request', {
-                path: 'materials/personal',
+            let data = await store.dispatch('request', {
+                path: `materials/collections/${this.collectionId}`,
                 method: 'GET'
             });
+            this.collectionTitle = data.title;
+            this.materials = data.materials;
         }
     }
 </script>
@@ -81,7 +84,7 @@
     }
     .material-link {
         color: inherit;
-        &:hover > .btn {
+        &:hover > .start-btn {
             opacity: 100%;
         }
     }
@@ -89,7 +92,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
     .start-btn {
         background-image: url("../assets/icons/play-white.svg");
         background-color: #3EAF7C;

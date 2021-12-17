@@ -146,6 +146,28 @@ const routes = [
         }
     },
     {
+        path: '/collection/:collectionId',
+        name: 'Collection',
+        props: route => ({ collectionId: route.query.collectionId}),
+        // beforeEnter: (to, from, next) => {
+        //     if (!store.state.userLoggedIn) {
+        //         store.commit('popupShow',{
+        //             type: 'info',
+        //             message: 'Для доступа к разделу необходимо войти в аккаунт'
+        //         });
+        //         next("/login");
+        //     } else {
+        //         next();
+        //     }
+        // },
+        component: function () {
+            return import('../views/Collection')
+        },
+        meta: {
+            title: 'Коллекция'
+        }
+    },
+    {
         path: '/study/:setId',
         name: 'StudyPage',
         props: route => ({ setId: route.query.setId}),

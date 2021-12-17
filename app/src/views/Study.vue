@@ -15,13 +15,13 @@
             <h2>Отвечены верно:</h2>
             <ul>
                 <li v-for="(answer) in this.getCorrect()">
-                    [{{this.cards[answer.idx].idx}}] {{this.cards[answer.idx].question}} - {{this.cards[answer.idx].answer}}
+                    {{this.cards[answer.idx].idx}}) {{this.cards[answer.idx].question}} - {{this.cards[answer.idx].answer}}
                 </li>
             </ul>
             <h2>Отвечены неверно:</h2>
             <ul>
                 <li v-for="(answer) in this.getIncorrect()">
-                    [{{this.cards[answer.idx].idx}}] {{this.cards[answer.idx].question}} - {{this.cards[answer.idx].answer}}
+                    {{this.cards[answer.idx].idx}}) {{this.cards[answer.idx].question}} - {{this.cards[answer.idx].answer}}
                 </li>
             </ul>
             <button type="button" @click="this.save">{{userLoggedIn ? 'Завершить и сохранить' : 'Завершить'}}</button>

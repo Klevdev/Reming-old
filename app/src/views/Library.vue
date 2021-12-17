@@ -1,18 +1,19 @@
 <template>
     <h1>Библиотека</h1>
-    <div v-if="!sets.length">
+    <div v-if="!materials.length">
         Здесь ничего нет :(
         <br>
         ...но вы могли бы <router-link to="/editor">добавить</router-link> сюда что-то своё
     </div>
     <section class="materials-wrapper">
-        <div :class="`material ${set.type}`" v-for="set in sets">
-            <router-link class="material-link" :to="'/material/'+set._id">
+        <div :class="`material ${material.type}`" v-for="material in materials">
+            <router-link class="material-link" :to="'/material/'+material._id">
                 <div style="min-height: 100%">
-                    <h3>{{set.title}}</h3>
-                    <div class="description">{{set.description}}</div>
+                    <h3>{{material.title}}</h3>
+                    <div class="description">{{material.description}}</div>
                 </div>
-                <router-link class="start-btn" :to="'/study/'+set._id">►</router-link>
+                <router-link v-if="material.type === 'set'" class="btn start-btn" :to="'/study/'+material._id" />
+                <router-link v-if="material.type === 'collection'" class="btn edit-btn" :to="'/material/'+material._id" />
             </router-link>
         </div>
     </section>
@@ -25,11 +26,11 @@
         name: "Library",
         data() {
             return {
-                sets: [],
+                materials: [],
             }
         },
         async beforeMount() {
-            this.sets = await store.dispatch('request', {
+            this.materials = await store.dispatch('request', {
                 path: 'materials/public',
                 method: 'GET'
             });
@@ -88,22 +89,40 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
     .start-btn {
+        background-image: url("../assets/icons/play-white.svg");
+        background-color: #3EAF7C;
+        background-size: 35px 35px;
+        &:hover {
+            background-color: #4EBF8C;
+        }
+    }
+
+    .edit-btn {
+        background-image: url("../assets/icons/elipsis-white.svg");
+        background-color: #4285F4;
+        background-size: 20px 20px;
+        &:hover {
+            background-color: #A1C4FD;
+        }
+    }
+
+    .btn {
         opacity: 0;
+        background-repeat: no-repeat;
+        background-position: center center;
+        display: block;
+        width: 35px;
+        height: 35px;
         position: relative;
         left: 135px;
         bottom: 30px;
-        padding: 10px 10px 10px 12px;
         color: white;
-        font-size: 1em;
-        background-color: #3EAF7C;
         border-radius: 50%;
-        width: 35px;
-        height: 35px;
         transition: background-color .2s, opacity .1s;
         &:hover {
             cursor: pointer;
-            background-color: #4EBF8C;
         }
     }
 </style>

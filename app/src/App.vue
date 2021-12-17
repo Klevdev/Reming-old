@@ -89,6 +89,7 @@
     }
 
     button, button[type='submit'], button[type='button'] {
+        color: #FFFFFF;
         background-color: #4285F4;
         border: none;
         border-radius: 0;
