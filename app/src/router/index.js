@@ -189,6 +189,28 @@ const routes = [
             title: 'Прохождение набора'
         }
     },
+    {
+        path: '/mystats',
+        name: 'MyStats',
+        // props: route => ({ setId: route.query.setId}),
+        beforeEnter: (to, from, next) => {
+            if (!store.state.userLoggedIn) {
+                store.commit('popupShow',{
+                    type: 'info',
+                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                });
+                next("/login");
+            } else {
+                next();
+            }
+        },
+        component: function () {
+            return import('../views/Stats')
+        },
+        meta: {
+            title: 'Моя статистика'
+        }
+    },
     // {
     //     // will match everything
     //     path: '*',

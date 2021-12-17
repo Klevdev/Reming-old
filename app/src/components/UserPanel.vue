@@ -9,7 +9,7 @@
 <!--        <button id="toggle-user-dropdown" :class="{arrowUp: showDropDown}"></button>-->
     </div>
     <ul v-if="userLoggedIn && showDropDown" class="dropdown">
-        <li>Профиль</li>
+        <li><router-link to="/mystats">Моя статистика</router-link></li>
         <li id="logout" @click="userLogOut">Выйти</li>
     </ul>
 </template>

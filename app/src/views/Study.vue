@@ -12,6 +12,11 @@
     <section v-else>
         <div class="end-screen">
             <h1>Итог</h1>
+            <div>
+                <span style="color: #3EAF7C; margin-right: 10px">{{this.getCorrect().length}}</span>
+                <span style="color: #E95252; margin-right: 10px">{{this.getIncorrect().length}}</span>
+                <span>{{getPercentage()}}%</span>
+            </div>
             <h2>Отвечены верно:</h2>
             <ul>
                 <li v-for="(answer) in this.getCorrect()">
@@ -97,6 +102,9 @@
             getIncorrect() {
                 return answers.filter(answer => !answer.correct);
             },
+            getPercentage() {
+                return Math.round(this.getCorrect().length / answers.length * 10000) / 100;
+            },
             async save() {
                 if (!this.userLoggedIn) {
                     store.commit('popupShow', {
@@ -111,6 +119,8 @@
                         body: JSON.stringify({
                             materialType: "set",
                             materialId: this.setId,
+                            correctCount: this.getCorrect().length,
+                            incorrectCount: this.getIncorrect().length,
                             items: answers
                         })
                     });
@@ -120,7 +130,7 @@
                             type: 'success',
                             message: 'Ваш результат сохранён'
                         })
-                        await router.push("/");
+                        router.go(-1);
                     }
                 }
             }
