@@ -3,8 +3,8 @@
         <div class="set-header">
             <h2>{{set.title}}</h2>
             <div class="btns" style="justify-content: flex-end">
-                <button v-if="!favorites.filter(item => item._id === setId).length" type="button" class="btn favorites-add-btn" @click="favoritesAdd(setId)"></button>
-                <button v-if="favorites.filter(item => item._id === setId).length" type="button" class="btn favorites-remove-btn" @click="favoritesRemove(setId)"></button>
+                <button v-if="!isMaterialInFavorites" type="button" class="btn favorites-add-btn" @click="() => {favoritesAdd(setId); this.isMaterialInFavorites = !isMaterialInFavorites}"></button>
+                <button v-if="isMaterialInFavorites" type="button" class="btn favorites-remove-btn" @click="() => {favoritesRemove(setId); this.isMaterialInFavorites = !isMaterialInFavorites}"></button>
                 <button v-if="set.author === userName" type="button" class="btn edit-btn" @click="this.$router.push(`/editor/${setId}`)"></button>
                 <button v-if="set.author === userName" type="button" class="btn delete-btn" @click="deleteSet"></button>
             </div>
@@ -37,7 +37,8 @@
         data() {
             return {
                 setId: this.$route.params.setId,
-                set: {}
+                set: {},
+                isMaterialInFavorites: false,
             }
         },
         computed: {
@@ -57,6 +58,16 @@
                 _id: this.$route.params.setId,
                 title: this.set.title
             });
+
+            let favoritesCopy = JSON.parse(JSON.stringify(this.favorites));
+            let flag = false;
+            for (let i = 0; i < favoritesCopy.length; i++) {
+                if (favoritesCopy[i]._id === this.setId) {
+                    flag = true;
+                    break;
+                }
+            }
+            this.isMaterialInFavorites = flag;
         },
         methods: {
             ...mapActions(['favoritesAdd', 'favoritesRemove']),

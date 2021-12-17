@@ -61,7 +61,9 @@ router.get("/:id", async(req, res) => {
     // if (authToken === '' || authToken === undefined || authToken === null) {
     //     return res.status(400).send({ error: 'Отсутствует токен' });
     // }
-
+    if (req.params.id === undefined) {
+        return res.status(400).send({ error: 'Id не передан' });
+    }
     try {
         await mongoClient.connect();
         const db = mongoClient.db("reming");

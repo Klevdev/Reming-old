@@ -37,7 +37,7 @@ router.post('/signup', async(req, res) => {
             authToken = hash(tokenRaw, 'hex');
         } while (!collection.find({ "auth.token": authToken }));
 
-        const timeStamp = Date.now() + 1000 * 60 * 60 * 12;
+        const timeStamp = Date.now() + 1000 * 60 * 60 * 48;
 
         await collection.updateOne({ _id: user._id }, {
             $set: {
@@ -79,7 +79,7 @@ router.post('/login', async(req, res) => {
             authToken = hash(tokenRaw, 'hex');
         } while (!users.find({ "auth.token": authToken }));
 
-        const timeStamp = Date.now() + 1000 * 60 * 60 * 12;
+        const timeStamp = Date.now() + 1000 * 60 * 60 * 48;
 
         const update = await users.updateOne(query, {
             $set: {
@@ -295,7 +295,7 @@ router.get('/favorites', async(req, res) => {
             materials = materials.splice(0, req.query.limit);
         }
 
-        return res.send(materials);
+        return res.status(200).send(materials);
 
     } catch (err) {
         console.error(err);

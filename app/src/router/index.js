@@ -21,6 +21,9 @@ const routes = [
                 }
             ]
         },
+        beforeEnter: async (to, from, next) => {
+            await router.push('Library');
+        },
     },
     {
         path: '/about',

@@ -16,7 +16,7 @@ export default createStore({
             popupTimeoutId: null,
 
             recentMaterials: null,
-            favorites: null,
+            favorites: [],
         }
     },
     mutations: {
@@ -118,8 +118,8 @@ export default createStore({
                 body: params.hasOwnProperty("body") ? params.body : undefined
             });
             let response = await res.json();
-            if (response.hasOwnProperty('error')) {
-                console.error(res.error);
+            if (res.status !== 200) {
+                console.error(response.error);
                 context.commit('popupShow',{
                     type: 'error',
                     message: response.error
@@ -132,7 +132,7 @@ export default createStore({
                 path: `users/favorites`,
                 method: 'GET',
             });
-            if (!res.hasOwnProperty('error')) {
+            if (res.status !== 200) {
                 context.state.favorites = res;
             }
         },
