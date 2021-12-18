@@ -1,8 +1,10 @@
 <template>
     <Header @toggle-sidebar="toggleSidebar()"/>
     <Sidebar :collapsed="sidebarCollapsed"/>
+<!--    <button @click="loadingPlaying = !loadingPlaying" style="position: absolute; z-index: 110">ы</button>-->
     <Popup/>
     <Prompt/>
+<!--    <Loading/>-->
     <router-view :key="$route.fullPath"/>
 </template>
 
@@ -11,6 +13,7 @@
     import Sidebar from '@/components/Sidebar';
     import Popup from '@/components/Popup';
     import Prompt from '@/components/Prompt';
+    import Loading from '@/components/Loading';
     import store from "./store";
 
     export default {
@@ -19,7 +22,8 @@
             Header,
             Sidebar,
             Popup,
-            Prompt
+            Prompt,
+            Loading
         },
         data() {
             return {
@@ -52,6 +56,7 @@
 
     body {
         background-color: #F3F3F3;
+        /*background-color: #333;*/
         overflow-x: hidden;
         margin-top: 75px; /*компенация хэдера*/
     }

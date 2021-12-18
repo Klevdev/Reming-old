@@ -1,12 +1,12 @@
 <template>
     <section v-if="!studyComplete">
-        <div class="card">
+        <div class="card" :class="cardAnimation">
             {{currentCardText}}
         </div>
         <div class="buttons">
-            <button type="button" class="btn incorrect" @click="answer(false)" :disabled="!currentCardFlipped">✕</button>
-            <button type="button" class="btn flip" @click="flip">Перевернуть</button>
-            <button type="button" class="btn correct" @click="answer(true)" :disabled="!currentCardFlipped">✓</button>
+            <button type="button" class="btn incorrect-btn" @click="answer(false)" :disabled="!currentCardFlipped || cardAnimation">✕</button>
+            <button type="button" class="btn flip-btn" @click="flip" :disabled="cardAnimation">Перевернуть</button>
+            <button type="button" class="btn correct-btn" @click="answer(true)" :disabled="!currentCardFlipped || cardAnimation">✓</button>
         </div>
     </section>
     <section v-else>
@@ -52,6 +52,8 @@
                 currentCardText: null,
                 currentCardSide: 0,
                 currentCardFlipped: false,
+
+                cardAnimation: null, // 'appear'/'flip'/'correct'/'incorrect'
             }
         },
         computed: {
@@ -69,13 +71,21 @@
         },
         methods: {
             flip() {
+                this.cardAnimation = 'flip';
+                setTimeout(() => {
+                    this.cardAnimation = null;
+                }, 500);
                 this.currentCardFlipped = true;
                 if (this.currentCardSide === 0) {
                     this.currentCardSide = 1;
-                    this.currentCardText = this.cards[this.currentCardIdx].answer;
+                    setTimeout(() => {
+                        this.currentCardText = this.cards[this.currentCardIdx].answer;
+                    }, 250);
                 } else {
                     this.currentCardSide = 0;
-                    this.currentCardText = this.cards[this.currentCardIdx].question;
+                    setTimeout(() => {
+                        this.currentCardText = this.cards[this.currentCardIdx].question;
+                    }, 250);
                 }
             },
             answer(correct) {
@@ -83,9 +93,17 @@
                     idx: this.cards[this.currentCardIdx].idx,
                     correct: correct
                 });
-                this.nextCard();
+                this.cardAnimation = correct ? 'correct' : 'incorrect';
+                setTimeout(() => {
+                    this.cardAnimation = null;
+                    this.nextCard();
+                }, 500)
             },
             nextCard() {
+                this.cardAnimation = 'appear';
+                setTimeout(() => {
+                    this.cardAnimation = null;
+                }, 500)
                 this.currentCardIdx++;
                 if (this.currentCardIdx >= this.cards.length) {
                     // this.save();
@@ -147,7 +165,63 @@
         justify-content: space-around;;
     }
 
+    @keyframes appear {
+        0% {
+            opacity: 0;
+            top: -250px;
+        }
+        100% {
+            opacity: 1;
+            top: 0;
+        }
+    }
+
+    @keyframes flip {
+        0% {
+            transform: scaleX(1);
+        }
+        50% {
+            transform: scaleX(0);
+        }
+        100% {
+            transform: scaleX(1);
+        }
+    }
+    @keyframes correct {
+        0% {
+            opacity: 1;
+            left: 0;
+        }
+        100% {
+            opacity: 0;
+            left: 250px;
+        }
+    }
+    @keyframes incorrect {
+        0% {
+            opacity: 1;
+            right: 0;
+        }
+        100% {
+            opacity: 0;
+            right: 250px;
+        }
+    }
+    .appear {
+        animation: appear .5s forwards;
+    }
+    .flip {
+        animation: flip .5s forwards;
+    }
+    .correct {
+        animation: correct .5s forwards;
+    }
+    .incorrect {
+        animation: incorrect .5s forwards;
+    }
+
     .card {
+        position: relative;
         margin: 0 auto;
         font-size: 1.5em;
         width: 300px;
@@ -188,13 +262,13 @@
         &:hover {
             cursor: pointer;
         }
-        &.incorrect {
+        &.incorrect-btn {
             background-color: #E95252;
             &:hover {
                 background-color: #EC5555;
             }
         }
-        &.flip {
+        &.flip-btn {
             width: max-content;
             padding: 0 15px;
             background-color: #A1C4FD;
@@ -202,7 +276,7 @@
                 background-color: #A4C7FF;
             }
         }
-        &.correct {
+        &.correct-btn {
             background-color: #3EAF7C;
 
             &:hover {

@@ -15,6 +15,8 @@ export default createStore({
             popupShow: false,
             popupTimeoutId: null,
 
+            loadingAnimationPlaying: false,
+
             recentMaterials: null,
             favorites: [],
         }
@@ -107,6 +109,7 @@ export default createStore({
             /*
                 params = {method, path, body}
             */
+            context.state.loadingAnimationPlaying = true;
             const uri = "http://localhost:3000/" + params.path;
             const res = await fetch(uri, {
                 method: params.method,
@@ -125,6 +128,7 @@ export default createStore({
                     message: response.error
                 });
             }
+            context.state.loadingAnimationPlaying = false;
             return response;
         },
         async favoritesFetch(context) {

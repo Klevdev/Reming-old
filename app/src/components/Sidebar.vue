@@ -1,8 +1,8 @@
 <template>
     <nav :class="collapsed ? 'open' : 'collapsed'">
 <!--        <router-link to="/">Главная</router-link>-->
-        <router-link class="menu-item library" to="/library">Библиотека</router-link>
-        <router-link class="menu-item editor" to="/editor">Конструктор</router-link>
+        <router-link class="menu-item library" :to="{name: 'Library'}">Библиотека</router-link>
+        <router-link class="menu-item editor" :to="{name: 'Editor'}">Конструктор</router-link>
         <router-link class="menu-item mymaterials" to="/mymaterials">Мои наборы</router-link>
         <ul class="sub-nav">
             <router-link v-for="item in recentMaterials" :to="'/material/'+item._id">{{item.title}}</router-link>
