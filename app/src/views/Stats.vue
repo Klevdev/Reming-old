@@ -92,6 +92,7 @@
         flex-direction: row;
         align-items: flex-end;
         gap: 15px;
+        overflow-y: scroll;
         & > .study:not(:last-child) {
             border-right: 1px solid #DDD;
         }
