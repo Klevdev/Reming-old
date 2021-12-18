@@ -22,7 +22,7 @@ const routes = [
             ]
         },
         beforeEnter: async (to, from, next) => {
-            await router.push('Library');
+            await router.push({name: 'Library'});
         },
     },
     {
@@ -81,7 +81,7 @@ const routes = [
         }
     },
     {
-        path: '/library',
+        path: '/materials/public',
         name: 'Library',
         // beforeEnter: (to, from, next) => {},
         component: function () {
@@ -92,9 +92,52 @@ const routes = [
         }
     },
     {
-        path: '/editor/:setId?',
+        path: '/editor/set/:id?',
+        name: 'EditorSet',
+        props: true,
+        beforeEnter: (to, from, next) => {
+            if (!store.state.userLoggedIn) {
+                store.commit('popupShow',{
+                    type: 'info',
+                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                });
+                next("/login");
+            } else {
+                next();
+            }
+        },
+        component: function () {
+            return import('../views/EditorSet')
+        },
+        meta: {
+            title: 'Конструктор наборов'
+        }
+    },
+    {
+        path: '/editor/collection/:id?',
+        name: 'EditorCollection',
+        props: true,
+        beforeEnter: (to, from, next) => {
+            if (!store.state.userLoggedIn) {
+                store.commit('popupShow',{
+                    type: 'info',
+                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                });
+                next("/login");
+            } else {
+                next();
+            }
+        },
+        component: function () {
+            return import('../views/EditorCollection')
+        },
+        meta: {
+            title: 'Конструктор коллекций'
+        }
+    },
+    {
+        path: '/editor',
         name: 'Editor',
-        // props: route => ({ 'formData.setId': route.query.setId}),
         beforeEnter: (to, from, next) => {
             if (!store.state.userLoggedIn) {
                 store.commit('popupShow',{
@@ -110,12 +153,12 @@ const routes = [
             return import('../views/Editor')
         },
         meta: {
-            title: 'Создание набора'
+            title: 'Конструктор материалов'
         }
     },
     {
-        path: '/mymaterials',
-        name: 'Materials',
+        path: '/materials/personal',
+        name: 'MyMaterials',
         beforeEnter: (to, from, next) => {
             if (!store.state.userLoggedIn) {
                 store.commit('popupShow',{
@@ -131,46 +174,33 @@ const routes = [
             return import('../views/Materials')
         },
         meta: {
-            title: 'Мои наборы'
+            title: 'Мои материалы'
         }
     },
     {
-        path: '/material/:setId',
+        path: '/materials/:id',
         name: 'MaterialPage',
-        props: route => ({ setId: route.query.setId}),
         component: function () {
             return import('../views/MaterialPage')
         },
         meta: {
-            title: 'Набор карточек'
+            title: 'Страница материала'
         }
     },
     {
-        path: '/collection/:collectionId',
+        path: '/materials/collections/:collectionId',
         name: 'Collection',
-        props: route => ({ collectionId: route.query.collectionId}),
-        // beforeEnter: (to, from, next) => {
-        //     if (!store.state.userLoggedIn) {
-        //         store.commit('popupShow',{
-        //             type: 'info',
-        //             message: 'Для доступа к разделу необходимо войти в аккаунт'
-        //         });
-        //         next("/login");
-        //     } else {
-        //         next();
-        //     }
-        // },
         component: function () {
             return import('../views/Collection')
         },
         meta: {
-            title: 'Коллекция'
+            title: 'Коллекция материалов'
         }
     },
     {
         path: '/study/:setId',
         name: 'StudyPage',
-        props: route => ({ setId: route.query.setId}),
+        props: true,
         // beforeEnter: (to, from, next) => {
         //     if (!store.state.userLoggedIn) {
         //         store.commit('popupShow',{
@@ -186,7 +216,7 @@ const routes = [
             return import('../views/Study')
         },
         meta: {
-            title: 'Прохождение набора'
+            title: 'Прохождение материала'
         }
     },
     {

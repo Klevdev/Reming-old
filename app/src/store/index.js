@@ -103,6 +103,16 @@ export default createStore({
             }
             localStorage.setItem('recentMaterials', JSON.stringify(state.recentMaterials));
         },
+        removeFromRecentMaterials(state, payload) {
+            for (let i = 0; i < state.recentMaterials.length; i++) {
+                let item = state.recentMaterials[i];
+                if (item._id === payload._id) {
+                    state.recentMaterials.splice(i, 1);
+                }
+            }
+
+            localStorage.setItem('recentMaterials', JSON.stringify(state.recentMaterials));
+        },
     },
     actions: {
         async request(context, params) {
@@ -160,11 +170,12 @@ export default createStore({
             });
             if (!res.hasOwnProperty('error')) {
                 context.state.favorites = context.state.favorites.filter(item => item._id !== materialId);
-                context.commit('popupShow',{
-                    type: 'success',
-                    message: 'Материал удалён из избранного'
-                });
+                // context.commit('popupShow',{
+                //     type: 'success',
+                //     message: 'Материал удалён из избранного'
+                // });
             }
+            await context.dispatch('favoritesFetch');
         },
     }
 });

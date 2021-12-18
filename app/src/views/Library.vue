@@ -1,19 +1,21 @@
 <template>
-    <div class="page-header">
-        <h1>Библиотека</h1>
-<!--        <div class="search">-->
-<!--            <input v-model="searchText" type="text" placeholder="Поиск" @input="searchDropdownShown = !searchDropdownShown" />-->
-<!--            <button type="button" @click="search"></button>-->
-<!--            <div class="dropdown">-->
-<!--            </div>-->
-<!--        </div>-->
-    </div>
-    <div v-if="!materials.length">
-        Здесь ничего нет :(
-        <br>
-        ...но вы могли бы <router-link to="/editor">добавить</router-link> сюда что-то своё
-    </div>
-    <MaterialsList :materials="materials"/>
+    <section class="page-wrapper">
+        <div class="page-header">
+            <h1>Библиотека</h1>
+    <!--        <div class="search">-->
+    <!--            <input v-model="searchText" type="text" placeholder="Поиск" @input="searchDropdownShown = !searchDropdownShown" />-->
+    <!--            <button type="button" @click="search"></button>-->
+    <!--            <div class="dropdown">-->
+    <!--            </div>-->
+    <!--        </div>-->
+        </div>
+        <div v-if="!materials.length">
+            Здесь ничего нет :(
+            <br>
+            ...но вы могли бы <router-link to="/editor">добавить</router-link> сюда что-то своё
+        </div>
+        <MaterialsList :materials="materials"/>
+    </section>
 </template>
 
 <script>
@@ -47,8 +49,10 @@
 </script>
 
 <style scoped lang="scss">
-    .page-header {
+    .page-wrapper {
         margin-left: 250px;
+    }
+    .page-header {
         display: flex;
         flex-direction: row;
         align-items: center;

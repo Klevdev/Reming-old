@@ -3,13 +3,13 @@
 <!--        <router-link to="/">Главная</router-link>-->
         <router-link class="menu-item library" :to="{name: 'Library'}">Библиотека</router-link>
         <router-link class="menu-item editor" :to="{name: 'Editor'}">Конструктор</router-link>
-        <router-link class="menu-item mymaterials" to="/mymaterials">Мои наборы</router-link>
+        <router-link class="menu-item mymaterials" :to="{name: 'MyMaterials'}">Мои наборы</router-link>
         <ul class="sub-nav">
-            <router-link v-for="item in recentMaterials" :to="'/material/'+item._id">{{item.title}}</router-link>
+            <router-link v-for="item in recentMaterials" :to="'/materials/'+item._id">{{item.title}}</router-link>
         </ul>
-        <router-link class="menu-item favorites" to="/mymaterials#favorites">Избранное</router-link>
+        <router-link class="menu-item favorites" :to="{name: 'MyMaterials'}">Избранное</router-link>
         <ul class="sub-nav">
-            <router-link v-for="item in favorites" :to="'/material/'+item._id">{{item.title}}</router-link>
+            <router-link v-for="item in favorites" :to="'/materials/'+item._id">{{item.title}}</router-link>
         </ul>
         <router-link class="menu-item about" to="/about">О сайте</router-link>
     </nav>

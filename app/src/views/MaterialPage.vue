@@ -1,28 +1,28 @@
 <template>
-    <div class="set-info">
-        <div class="set-header">
-            <h2>{{set.title}}</h2>
+    <div class="material-info">
+        <div class="material-header">
+            <h2>{{material.title}}</h2>
             <div class="btns" style="justify-content: flex-end">
-                <button v-if="!isMaterialInFavorites" type="button" class="btn favorites-add-btn" @click="() => {favoritesAdd(setId); this.isMaterialInFavorites = !isMaterialInFavorites}"></button>
-                <button v-if="isMaterialInFavorites" type="button" class="btn favorites-remove-btn" @click="() => {favoritesRemove(setId); this.isMaterialInFavorites = !isMaterialInFavorites}"></button>
-                <button v-if="set.author === userName" type="button" class="btn edit-btn" @click="this.$router.push(`/editor/${setId}`)"></button>
-                <button v-if="set.author === userName" type="button" class="btn delete-btn" @click="deleteSet"></button>
+                <button v-if="!isMaterialInFavorites" type="button" class="btn favorites-add-btn" @click="() => {favoritesAdd(id); this.isMaterialInFavorites = !isMaterialInFavorites}"></button>
+                <button v-if="isMaterialInFavorites" type="button" class="btn favorites-remove-btn" @click="() => {favoritesRemove(id); this.isMaterialInFavorites = !isMaterialInFavorites}"></button>
+                <button v-if="material.author === userName" type="button" class="btn edit-btn" @click="this.$router.push(`/editor/${material.type}/${id}`)"></button>
+                <button v-if="material.author === userName" type="button" class="btn delete-btn" @click="deleteSet"></button>
             </div>
         </div>
         <dl>
             <dt>Описание</dt>
-            <dd style="overflow: hidden;text-overflow: ellipsis;">{{set.description}}</dd>
+            <dd style="overflow: hidden;text-overflow: ellipsis;">{{material.description}}</dd>
             <dt>Доступен в библиотеке</dt>
-            <dd>{{set.isPublic ? 'Да' : 'Нет'}}</dd>
+            <dd>{{material.isPublic ? 'Да' : 'Нет'}}</dd>
             <dt>Автор</dt>
-            <dd>{{set.author}}</dd>
+            <dd>{{material.author}}</dd>
             <dt>Дата создания</dt>
-            <dd>{{set.timeCreated}}</dd>
+            <dd>{{material.timeCreated}}</dd>
             <dt>Теги</dt>
             <dd>Скоро будут</dd>
         </dl>
         <div class="btns">
-            <router-link v-if="set.type === 'set'" class="start-btn" :to="'/study/'+setId"/>
+            <router-link v-if="material.type === 'set'" class="start-btn" :to="'/study/'+id"/>
         </div>
     </div>
 </template>
@@ -30,14 +30,14 @@
 <script>
     import store from "../store";
     import router from "../router";
-    import {mapState, mapActions} from "vuex";
+    import {mapState, mapMutations, mapActions} from "vuex";
 
     export default {
         name: "MaterialPage",
         data() {
             return {
-                setId: this.$route.params.setId,
-                set: {},
+                id: this.$route.params.id,
+                material: {},
                 isMaterialInFavorites: false,
             }
         },
@@ -45,24 +45,24 @@
             ...mapState(['userName', 'favorites'])
         },
         async created() {
-            this.set = await store.dispatch('request', {
-                path: `materials/${this.setId}`,
+            this.material = await store.dispatch('request', {
+                path: `materials/${this.id}`,
                 method: "GET"
             });
-            if (this.set.hasOwnProperty('error')) {
+            if (this.material.hasOwnProperty('error')) {
                 router.go(-1);
             }
-            this.set.timeCreated = new Date(this.set.timeCreated).toLocaleDateString("ru-RU");
+            this.material.timeCreated = new Date(this.material.timeCreated).toLocaleDateString("ru-RU");
 
             store.commit('updateRecentMaterials', {
-                _id: this.$route.params.setId,
-                title: this.set.title
+                _id: this.id,
+                title: this.material.title
             });
 
             let favoritesCopy = JSON.parse(JSON.stringify(this.favorites));
             let flag = false;
             for (let i = 0; i < favoritesCopy.length; i++) {
-                if (favoritesCopy[i]._id === this.setId) {
+                if (favoritesCopy[i]._id === this.id) {
                     flag = true;
                     break;
                 }
@@ -70,11 +70,12 @@
             this.isMaterialInFavorites = flag;
         },
         methods: {
+            ...mapMutations(['removeFromRecentMaterials']),
             ...mapActions(['favoritesAdd', 'favoritesRemove']),
             async deleteSet() {
                 if (confirm("Вы уверены, что хотите удалить набор?")) {
                     const res = await store.dispatch('request',{
-                        path: `materials/sets/${this.setId}`,
+                        path: `materials/sets/${this.id}`,
                         method: 'DELETE',
                     });
                     if (!res.hasOwnProperty('error')) {
@@ -82,6 +83,8 @@
                             type: 'success',
                             message: 'Материал удалён'
                         });
+                        this.removeFromRecentMaterials({_id: this.id});
+                        this.favoritesRemove(this.id)
                         router.go(-1);
                     }
                 }
@@ -91,7 +94,7 @@
 </script>
 
 <style scoped lang="scss">
-    .set-info {
+    .material-info {
         margin: 0 auto;
         width: 400px;
         box-shadow: 0 0 10px #DDD, 0 20px 20px #DDD;
@@ -106,7 +109,7 @@
         border: 1px solid #DDD;
     }
 
-    .set-header {
+    .material-header {
         width: 100%;
         display: grid;
         grid-template-columns: 1fr 90px;
