@@ -3,7 +3,7 @@
         <h1>Библиотека</h1>
 <!--        <div class="search">-->
 <!--            <input v-model="searchText" type="text" placeholder="Поиск" @input="searchDropdownShown = !searchDropdownShown" />-->
-<!--            <button type="button"></button>-->
+<!--            <button type="button" @click="search"></button>-->
 <!--            <div class="dropdown">-->
 <!--            </div>-->
 <!--        </div>-->
@@ -14,7 +14,7 @@
         ...но вы могли бы <router-link to="/editor">добавить</router-link> сюда что-то своё
     </div>
     <section class="materials-wrapper">
-        <div :class="`material ${material.type}`" v-for="material in materials">
+        <div :class="`material ${material.type}`" v-for="material in materials"><!--v-if="materialsShown.includes(material._id)"-->
             <router-link class="material-link" :to="'/material/'+material._id">
                 <div style="min-height: 100%">
                     <h3>{{material.title}}</h3>
@@ -35,8 +35,9 @@
         data() {
             return {
                 materials: [],
-                searchText: null,
-                searchParams: [],
+                // materialsShown: [],
+                // searchText: null,
+                // searchParams: [],
             }
         },
         async beforeMount() {
@@ -44,6 +45,10 @@
                 path: 'materials/public',
                 method: 'GET'
             });
+            // this.materials.forEach(material => this.materialsShown.push(material._id));
+        },
+        methods: {
+            // search() {}
         }
     }
 </script>
