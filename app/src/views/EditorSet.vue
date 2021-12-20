@@ -5,12 +5,9 @@
             <Input v-model="formData.title" :attributes="inputAttributes.title"/>
             <label for="description">Описание</label>
             <textarea v-model="formData.description" name="description" id="description" placeholder="Карточки для подготовки к экзамену" maxlength="100"></textarea>
-<!--            <Checkbox v-model="formData.isPublic" :attributes="inputAttributes.isPublic"/>-->
-            <label>
-                <input type="checkbox" v-model="formData.isPublic"/>Доступен в библиотеке
-            </label>
+            <Checkbox v-model="formData.isPublic" :attributes="inputAttributes.isPublic"/>
             <div v-if="formData.cards.length" class="cards">
-                <span >Карточки набора:</span>
+                <span style="text-align: left">Карточки набора:</span>
                 <div class="card" v-for="(card, index) in formData.cards" :key="index">
                     <div class="card-idx-delete">
                         <span>{{index+1}}</span>
@@ -24,10 +21,7 @@
                         <textarea v-model="formData.cards[index].answer" placeholder="Обратная сторона" maxlength="100"></textarea>
                     </div>
                     <div class="card-options" style="font-size: 0.8em">
-<!--                        <Checkbox v-model="formData.cards[index].isFlippable" :attributes="inputAttributes.isFlippable" :idx="index"/>-->
-                        <label>
-                            <input type="checkbox" v-model="formData.cards[index].isFlippable"/>Может переворачиваться
-                        </label>
+                        <Checkbox v-model="formData.cards[index].isFlippable" :attributes="inputAttributes.isFlippable" :idx="index"/>
                     </div>
                 </div>
             </div>
@@ -82,10 +76,10 @@
                         label: "Доступен из библиотеки",
                         name: "cb-is-public"
                     },
-                    // isFlippable: {
-                    //     label: "Может переворачиваться",
-                    //     name: "cb-is-flippable"
-                    // }
+                    isFlippable: {
+                        label: "Может переворачиваться",
+                        name: "cb-is-flippable"
+                    }
                 }
             }
         },
@@ -189,15 +183,21 @@
         }
     }
 
-    input[type=checkbox] {
-        position: relative;
-        top: 2px;
-        margin-right: 5px;
-    }
-
     .cards {
+        width: 100%;
         display: flex;
         flex-direction: column;
+        gap: 5px;
+    }
+
+    .card-idx-delete {
+        margin-left: 7px;
+        width: 25px;
+        height: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .card {
@@ -208,22 +208,17 @@
         flex-wrap: wrap;
         align-items: center;
         column-gap: 7px;
-        &:not(:first-child) {
-            border-top: 1px solid #AAA;
-        }
-    }
+        background-color: #fff;
+        border: 1px solid #DDD;
+        border-radius: 3px;
 
-    .card-idx-delete {
-        width: 25px;
-        height: 50%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: center;
+        /*&:not(:first-child) {*/
+        /*    border-top: 1px solid #AAA;*/
+        /*}*/
     }
 
     .card-options {
-        padding-left: 32px;
+        padding-left: 39px;
         display: flex;
         flex-direction: row;
     }

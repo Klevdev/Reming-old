@@ -57,6 +57,7 @@
             background: initial;
         }
         z-index: 100;
+        justify-self: flex-end;
         width: $panel-width;
         height: 55px;
         padding: 0 20px;
@@ -85,6 +86,7 @@
 
     #user-name {
         width: 100%;
+        max-height: 2.5em;
         text-align: left;
         overflow: hidden;
         text-overflow: ellipsis;

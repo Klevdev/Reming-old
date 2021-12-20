@@ -1,12 +1,12 @@
 <template>
     <section v-if="!studyComplete">
-        <div class="card" :class="cardAnimation">
+        <div class="card" :class="cardAnimation" @dblclick="flip">
             {{currentCardText}}
         </div>
         <div class="buttons">
-            <button type="button" class="btn incorrect-btn" @click="answer(false)" :disabled="!currentCardFlipped || cardAnimation">✕</button>
+            <button type="button" class="btn incorrect-btn" @click="answer(false)" :disabled="!currentCardFlipped || cardAnimation"></button>
             <button type="button" class="btn flip-btn" @click="flip" :disabled="cardAnimation">Перевернуть</button>
-            <button type="button" class="btn correct-btn" @click="answer(true)" :disabled="!currentCardFlipped || cardAnimation">✓</button>
+            <button type="button" class="btn correct-btn" @click="answer(true)" :disabled="!currentCardFlipped || cardAnimation"></button>
         </div>
     </section>
     <section v-else>
@@ -43,7 +43,7 @@
         data() {
             return {
                 studyComplete: false,
-                setId: this.$route.params.setId,
+                id: this.$route.params.id,
                 currentCardIdx: -1,
                 currentCardText: null,
                 currentCardSide: 0,
@@ -58,14 +58,33 @@
         async created() {
             this.cards = await store.dispatch('request', {
                 method: "GET",
-                path: `materials/sets/${this.setId}`
+                path: `materials/sets/${this.id}`
             });
             if (this.cards.hasOwnProperty('error')) {
-                router.go(-1);
+                router.back();
+            }
+            if (this.$route.query.shuffle === 'true') {
+                this.shuffle();
             }
             this.nextCard();
         },
         methods: {
+            shuffle() {
+                // https://javascript.info/task/shuffle
+                for (let i = this.cards.length - 1; i > 0; i--) {
+                    if (this.cards[i].isFlippable && Math.random() > .5) {
+                        [this.cards[i].answer, this.cards[i].question] = [this.cards[i].question, this.cards[i].answer];
+                    }
+                    let j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
+
+                    // swap elements array[i] and array[j]
+                    // we use "destructuring assignment" syntax to achieve that
+                    // you'll find more details about that syntax in later chapters
+                    // same can be written as:
+                    // let t = array[i]; array[i] = array[j]; array[j] = t
+                    [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+                }
+            },
             flip() {
                 this.cardAnimation = 'flip';
                 setTimeout(() => {
@@ -131,7 +150,7 @@
                         method: "POST",
                         body: JSON.stringify({
                             materialType: "set",
-                            materialId: this.setId,
+                            materialId: this.id,
                             correctCount: this.getCorrect().length,
                             incorrectCount: this.getIncorrect().length,
                             items: answers
@@ -216,6 +235,7 @@
     }
 
     .card {
+        user-select: none;
         position: relative;
         margin: 0 auto;
         font-size: 1.5em;
@@ -254,11 +274,15 @@
         width: 40px;
         height: 40px;
         transition: background-color .2s;
+        background-repeat: no-repeat;
+        background-position: center center;
         &:hover {
             cursor: pointer;
         }
         &.incorrect-btn {
             background-color: #E95252;
+            background-image: url("../assets/icons/cross-white.svg");
+            background-size: 50% 50%;
             &:hover {
                 background-color: #EC5555;
             }
@@ -273,7 +297,8 @@
         }
         &.correct-btn {
             background-color: #3EAF7C;
-
+            background-image: url("../assets/icons/checked-white.svg");
+            background-size: 100% 100%;
             &:hover {
                 background-color: #4EBF8C;
             }

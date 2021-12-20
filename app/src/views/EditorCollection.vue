@@ -5,10 +5,7 @@
             <Input v-model="formData.title" :attributes="inputAttributes.title"/>
             <label for="description">Описание</label>
             <textarea v-model="formData.description" name="description" id="description" placeholder="Наборы по математике" maxlength="100"></textarea>
-<!--            <Checkbox v-model="formData.isPublic" :attributes="inputAttributes.isPublic"/>-->
-            <label>
-                <input type="checkbox" v-model="formData.isPublic"/>Доступен в библиотеке
-            </label>
+            <Checkbox v-model="formData.isPublic" :attributes="inputAttributes.isPublic"/>
             <p>Добавить материалы</p>
             <div class="materials-list">
                 <p v-if="!userMaterials.length" style="font-size: .8em; text-align: left;">
@@ -200,12 +197,6 @@
         }
     }
 
-    input[type=checkbox] {
-        position: relative;
-        top: 2px;
-        margin-right: 5px;
-    }
-
     .materials-list {
         width: 100%;
         display: flex;
@@ -258,31 +249,31 @@
         }
     }
 
-    .btn-remove-material {
-        grid-row: 1/3;
+    .btn-add-material, .btn-remove-material {
         align-self: center;
-        background: url("../assets/icons/subtract.svg") center center no-repeat;
-        background-size: 20px 20px;
+        grid-row: 1/3;
         width: 20px;
         height: 20px;
+        background-color: initial;
+        background-size: 20px 20px;
+        background-position: center center;
+        background-repeat: no-repeat;
+
+        &.btn-remove-material {
+            background-image: url("../assets/icons/subtract.svg");
+        }
+
+        &.btn-add-material {
+            background-image: url("../assets/icons/add.svg");
+        }
+
         &:hover {
             cursor: pointer;
+            background-color: initial;
         }
+
     }
 
-    .btn-add-material {
-        grid-row: 1/3;
-        align-self: center;
-        color: #333;
-        background: url("../assets/icons/add.svg") 0 center no-repeat;
-        background-size: 20px 20px;
-        width: 20px;
-        height: 20px;
-        &:hover {
-            background-color: initial;
-            cursor: pointer;
-        }
-    }
 
 
 </style>

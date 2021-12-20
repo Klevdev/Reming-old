@@ -1,12 +1,10 @@
 <template>
-    <span v-if="error" class="error">{{error}}</span>
-    <div class="cb-wrapper">
+    <div class="cb-wrapper" :class="{'checked': modelValue}">
         <input
+                type="checkbox"
                 :value="modelValue"
                 :id="id"
-                :name="attributes.name+this.idx"
-                type="checkbox"
-                :class="{'input-error': this.error}"
+                :name="attributes.name+'-'+this.idx"
                 @change="$emit('update:modelValue', $event.target.checked)"
         />
         <label :for="id">{{attributes.label}}</label>
@@ -29,23 +27,37 @@
         ],
         data() {
             return {
-                id: 'input-'+this.attributes.name+this.idx,
-                error: null
+                id: 'input-'+this.attributes.name+'-'+this.idx
             }
         },
     }
 </script>
 
-<style scoped>
-    /*input {*/
-    /*    appearance: none;*/
-    /*    margin-top: .3em;*/
-    /*    width: .8em;*/
-    /*    height: .8em;*/
-    /*    border: 1px solid black;*/
-    /*}*/
+<style scoped lang="scss">
     .cb-wrapper {
         display: flex;
-        gap: 7px;
+        align-items: center;
+        gap: 3px;
+        user-select: none;
+        &::before {
+            content: '';
+            display: inline-block;
+            width: .9em;
+            height: .9em;
+            border: 1px solid #4285F4;
+            border-radius: 3px;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: 150% 150%;
+        }
+        &.checked::before {
+            background-image: url("../assets/icons/checked.svg");
+        }
+    }
+
+    input[type='checkbox'] {
+        position: absolute;
+        opacity: 0;
+        user-select: none;
     }
 </style>

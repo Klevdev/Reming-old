@@ -75,6 +75,7 @@
 
     a {
         color: #4285F4;
+        transition: color .2s;
 
         &.router-link-exact-active {
             color: black;
@@ -97,16 +98,23 @@
         color: #FFFFFF;
         background-color: #4285F4;
         border: none;
-        border-radius: 0;
-        padding: 7px 10px;
+        border-radius: 3px;
+        padding: 10px;
         transition: background-color .2s;
 
         &:hover, &:active {
+            cursor: pointer;
             background-color: #A1C4FD;
         }
         &[disabled] {
             background-color: #DDD;
         }
-    }
 
+        &.danger {
+            background-color: #E95252;
+            &:hover, &:active {
+                background-color: #FF5555;
+            }
+        }
+    }
 </style>

@@ -198,8 +198,8 @@ const routes = [
         }
     },
     {
-        path: '/study/:setId',
-        name: 'StudyPage',
+        path: '/study/:id',
+        name: 'Study',
         props: true,
         // beforeEnter: (to, from, next) => {
         //     if (!store.state.userLoggedIn) {

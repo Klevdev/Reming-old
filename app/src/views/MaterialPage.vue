@@ -2,11 +2,11 @@
     <div class="material-info">
         <div class="material-header">
             <h2>{{material.title}}</h2>
-            <div class="btns" style="justify-content: flex-end">
-                <button v-if="!isMaterialInFavorites" type="button" class="btn favorites-add-btn" @click="() => _favoritesAdd(id)"></button>
-                <button v-if="isMaterialInFavorites" type="button" class="btn favorites-remove-btn" @click="() => _favoritesRemove(id)"></button>
-                <button v-if="material.author === userName" type="button" class="btn edit-btn" @click="this.$router.push(`/editor/${material.type}/${id}`)"></button>
-                <button v-if="material.author === userName" type="button" class="btn delete-btn" @click="deleteSet"></button>
+            <div class="material-options">
+                <button v-if="!isMaterialInFavorites" type="button" class="btn btn-favorites-add" @click="() => _favoritesAdd(id)"></button>
+                <button v-if="isMaterialInFavorites" type="button" class="btn btn-favorites-remove" @click="() => _favoritesRemove(id)"></button>
+                <button v-if="material.author === userName" type="button" class="btn btn-edit" @click="this.$router.push(`/editor/${material.type}/${id}`)"></button>
+                <button v-if="material.author === userName" type="button" class="btn danger btn-delete" @click="deleteSet"></button>
             </div>
         </div>
         <dl>
@@ -24,8 +24,9 @@
             <dd>Скоро будут</dd>
         </dl>
         <router-link v-if="material.type === 'collection'" :to="'/materials/collections/'+material._id">Перейти в коллекцию</router-link>
-        <div class="btns">
-            <router-link v-if="material.type === 'set'" class="start-btn" :to="'/study/'+id"/>
+        <div v-if="material.type === 'set'" class="study">
+            <router-link class="btn-start" :to="{name: 'Study', params: {id: id}, query: {shuffle: shuffleStudy}}">Пройти набор</router-link>
+            <Checkbox v-model="shuffleStudy" :attributes="{name: 'shuffle', label: 'Перемешать карточки'}"/>
         </div>
     </div>
 </template>
@@ -34,14 +35,20 @@
     import store from "../store";
     import router from "../router";
     import {mapState, mapMutations, mapActions} from "vuex";
+    import Checkbox from "../components/Checkbox";
 
     export default {
         name: "MaterialPage",
+        components: {
+            Checkbox
+        },
         data() {
             return {
                 id: this.$route.params.id,
                 material: {},
                 isMaterialInFavorites: false,
+                shuffleStudy: false,
+                showCardIdx: false
             }
         },
         computed: {
@@ -140,6 +147,13 @@
         }
     }
 
+    .material-options {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
     dl {
         display: grid;
         gap: 10px;
@@ -153,17 +167,18 @@
         }
     }
 
-    .start-btn {
+    .btn-start {
         background-image: url("../assets/icons/play-white.svg");
         background-color: #3EAF7C;
         background-size: 35px 35px;
         background-repeat: no-repeat;
-        background-position: center center;
-        display: block;
-        width: 35px;
+        background-position: center left;
+        padding: 0 17.5px 0 35px;
+        display: flex;
+        align-items: center;
         height: 35px;
         color: white;
-        border-radius: 50%;
+        border-radius: 17.5px;
         transition: background-color .2s, opacity .1s;
 
         &:hover {
@@ -172,38 +187,37 @@
         }
     }
 
-    .btns {
+    .study {
         width: 100%;
-        gap: 15px;
+        row-gap: 7px;
         display: flex;
+        flex-direction: column;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
     }
 
     .btn {
-        background-color: initial;
         background-size: 20px 20px;
         background-repeat: no-repeat;
         background-position: center center;
-        padding-bottom: .2em;
-        color: black;
-        width: 35px;
-        height: 35px;
+        width: 20px;
+        height: 20px;
+        padding: 15px;
         &:hover {
             cursor: pointer;
-            background-color: initial;
         }
     }
-    .favorites-add-btn {
-        background-image: url("../assets/icons/favorites-add-gold.svg");
+    .btn-favorites-add {
+        background-image: url("../assets/icons/favorites-add-white.svg");
     }
-    .favorites-remove-btn {
-        background-image: url("../assets/icons/favorites-remove.svg");
+    .btn-favorites-remove {
+        background-image: url("../assets/icons/favorites-remove-white.svg");
     }
-    .edit-btn {
-        background-image: url("../assets/icons/edit.svg");
+    .btn-edit {
+        background-image: url("../assets/icons/edit-white.svg");
     }
-    .delete-btn {
-        background-image: url("../assets/icons/delete.svg");
+    .btn-delete {
+        background-image: url("../assets/icons/delete-white.svg");
     }
+
 </style>
