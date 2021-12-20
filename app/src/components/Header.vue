@@ -14,19 +14,7 @@ export default {
     methods: {
         toggleSidebar() {
             this.$emit('toggle-sidebar');
-            // console.log("AAAAAAAAAAAAA");
         },
-        // checkCookie() {
-        //     console.log("!")
-        //     return function() {
-        //         let currentCookie = document.cookie;
-        //         if (currentCookie !== lastCookie) {
-        //             // something useful like parse cookie, run a callback fn, etc.
-        //             this.userName = document.cookie.split("=")[1];
-        //             lastCookie = currentCookie; // store latest cookie
-        //         }
-        //     }
-        // },
     },
     data() {
         return {

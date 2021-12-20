@@ -9,7 +9,7 @@
     <!--            </div>-->
     <!--        </div>-->
         </div>
-        <div v-if="!materials.length">
+        <div v-if="!materials.length" style="text-align: left">
             Здесь ничего нет :(
             <br>
             ...но вы могли бы <router-link to="/editor">добавить</router-link> сюда что-то своё

@@ -29,7 +29,7 @@ router.get("/public", async(req, res) => {
 router.get("/personal", async(req, res) => {
     let authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
 
     try {
@@ -39,13 +39,27 @@ router.get("/personal", async(req, res) => {
         let collection = db.collection("users");
         const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1, name: 1 } });
         if (!user) {
-            return res.status(400).send({ error: 'Токен недействителен' });
+            return res.status(401).send({ error: 'Токен недействителен' });
         }
         if (user.auth.validThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
         }
+
+        let query = {
+            userId: user._id,
+        };
+        if (req.query.type) {
+            // console.log(req.query.type);
+            // let types = req.query.type.split('+');
+            // types.forEach(type => {
+            //     if (['set', 'collection'].indexOf(type) === -1) {
+            //         return res.status(400).send({ error: "Неверно указан тип материала" })
+            //     }
+            // });
+            query.type = req.query.type;
+        }
         collection = db.collection("materials");
-        const materials = await collection.find({ userId: user._id }).toArray();
+        const materials = await collection.find(query).toArray();
         return res.send(materials);
 
     } catch (err) {
@@ -62,7 +76,7 @@ router.get("/:id", async(req, res) => {
     //     return res.status(400).send({ error: 'Отсутствует токен' });
     // }
     if (req.params.id === undefined) {
-        return res.status(400).send({ error: 'Id не передан' });
+        return res.status(401).send({ error: 'Id не передан' });
     }
     try {
         await mongoClient.connect();

@@ -4,37 +4,40 @@
         <form @submit.prevent="submitForm">
             <Input v-model="formData.title" :attributes="inputAttributes.title"/>
             <label for="description">Описание</label>
-            <textarea v-model="formData.description" name="description" id="description" placeholder="Карточки для подготовки к экзамену" maxlength="100"></textarea>
+            <textarea v-model="formData.description" name="description" id="description" placeholder="Наборы по математике" maxlength="100"></textarea>
 <!--            <Checkbox v-model="formData.isPublic" :attributes="inputAttributes.isPublic"/>-->
             <label>
                 <input type="checkbox" v-model="formData.isPublic"/>Доступен в библиотеке
             </label>
-            <div v-if="formData.cards.length" class="cards">
-                <span >Карточки набора:</span>
-                <div class="card" v-for="(card, index) in formData.cards" :key="index">
-                    <div class="card-idx-delete">
-                        <span>{{index+1}}</span>
-                        <button type="button" class="btn-remove-card" @click="removeCard(index)"></button>
-                    </div>
-                    <div>
-                        <textarea v-model="formData.cards[index].question" placeholder="Лицевая сторона" maxlength="100"></textarea>
-                    </div>
-                    <button type="button" class="btn-flip-card" @click="flipCard(index)"></button>
-                    <div>
-                        <textarea v-model="formData.cards[index].answer" placeholder="Обратная сторона" maxlength="100"></textarea>
-                    </div>
-                    <div class="card-options" style="font-size: 0.8em">
-<!--                        <Checkbox v-model="formData.cards[index].isFlippable" :attributes="inputAttributes.isFlippable" :idx="index"/>-->
-                        <label>
-                            <input type="checkbox" v-model="formData.cards[index].isFlippable"/>Может переворачиваться
-                        </label>
-                    </div>
+            <p>Добавить материалы</p>
+            <div class="materials-list">
+                <p v-if="!userMaterials.length" style="font-size: .8em; text-align: left;">
+                    У вас нет материалов, которые можно добавить
+                </p>
+                <div class="material"  v-for="(material, index) in userMaterials">
+                    <button type="button" class="btn-add-material" @click="addMaterial(index)"></button>
+                    <div class="material-title" :class="material.type">{{material.title}}</div>
+                    <div class="material-time">{{new Date(material.timeCreated).toLocaleDateString("ru-RU")}}</div>
+                    <div v-if="material.description" class="material-description">{{material.description}}</div>
+                    <div v-if="!material.description" style="color: #AAA">Без описания</div>
                 </div>
             </div>
-            <button type="button" class="btn-add-card" @click="addCard">Добавить карточку</button>
+            <p>Материалы коллекции</p>
+            <p v-if="!formData.materials.length" style="font-size: .8em; text-align: left;">
+                В коллекции нет материалов
+            </p>
+            <div v-if="formData.materials.length" class="materials-list">
+                <div class="material" v-for="(material, index) in formData.materials">
+                    <button type="button" class="btn-remove-material"  @click="removeMaterial(index)"></button>
+                    <div class="material-title" :class="material.type">{{material.title}}</div>
+                    <div class="material-time">{{new Date(material.timeCreated).toLocaleDateString("ru-RU")}}</div>
+                    <div v-if="material.description" class="material-description">{{material.description}}</div>
+                    <div v-if="!material.description" style="color: #AAA">Без описания</div>
+                </div>
+            </div>
             <div style="display: flex; align-items: center; gap: 20px">
                 <button type="submit" :disabled="formHasError">{{id ? 'Подтвердить' : 'Создать' }}</button>
-                <a @click="this.$router.go(-1)">Отмена</a>
+                <a @click="this.$router.back()">Отмена</a>
             </div>
         </form>
     </section>
@@ -61,10 +64,12 @@
         },
         data() {
             return {
+                userMaterials: [],
                 formData: {
                     title: "",
                     description: "",
                     isPublic: false,
+                    materials: []
                 },
                 inputAttributes: {
                     title: {
@@ -85,9 +90,21 @@
             }
         },
         methods: {
+            addMaterial(index) {
+                let addedMaterial = this.userMaterials[index];
+                this.formData.materials.push(addedMaterial);
+                this.userMaterials.splice(index, 1);
+            },
+            removeMaterial(index) {
+                let addedMaterial = this.formData.materials[index];
+                this.userMaterials.push(addedMaterial);
+                this.formData.materials.splice(index, 1);
+            },
             async submitForm() {
+                this.formData.materials = this.formData.materials.map(item => item._id);
+                // this.formData.materials.forEach(item => item._id);
                 let result = await store.dispatch('request', {
-                    path: 'materials/collection' + (this.id ? `/${this.id}` : ''),
+                    path: 'materials/collections' + (this.id ? `/${this.id}` : ''),
                     method: this.id ? 'PUT' : 'POST',
                     body: JSON.stringify(this.formData)
                 });
@@ -96,28 +113,12 @@
                         type: 'success',
                         message: this.id ? 'Изменения сохранены' : 'Набор сохранён'
                     })
-                    await router.push(`/materials/collections/${result.id}`)
+                    await router.push(`/materials/${result.id}`)
                 }
-            },
-            addCard() {
-                this.formData.cards.push({
-                    idx: this.formData.cards.length,
-                    question: "",
-                    answer: "",
-                    isFlippable: false
-                });
-            },
-            removeCard(index) {
-                this.formData.cards.splice(index, 1);
-            },
-            flipCard(index) {
-                let firstSide = this.formData.cards[index].question;
-                this.formData.cards[index].question = this.formData.cards[index].answer;
-                this.formData.cards[index].answer = firstSide;
             },
         },
         async created() {
-            if (this.id !== "" && this.id !== undefined && this.id !== null) {
+            if (this.id !== "" && this.id !== undefined) {
                 console.log("Все ошибки ниже можно проигнорировать (П - профессионализм)")
                 this.formData = await store.dispatch('request', {
                     path: `materials/${this.id}`,
@@ -125,11 +126,28 @@
                 });
                 delete this.formData.author;
                 delete this.formData.timeCreated;
-                let cards = await store.dispatch('request', {
-                    path: `materials/sets/${this.id}`,
+                let materials = await store.dispatch('request', {
+                    path: `materials/collections/${this.id}`,
                     method: 'GET'
                 });
-                this.formData.cards = cards.hasOwnProperty('error') ? [] : cards;
+                if (materials.hasOwnProperty('error')) {
+                    this.formData.materials = [];
+                } else {
+                    this.formData.materials = materials.materials;
+                }
+            }
+            let userMaterials = await store.dispatch('request', {
+                path: `materials/personal`,
+                method: 'GET'
+            });
+            if (userMaterials.hasOwnProperty('error')) {
+                router.back();
+            } else {
+                let collectionMaterialsIds = this.formData.materials.map(item => item._id);
+                this.userMaterials = userMaterials.filter(item => collectionMaterialsIds.indexOf(item._id) === -1);
+                if (this.id) {
+                    this.userMaterials = userMaterials.filter(item => item._id !== this.id);
+                }
             }
         },
         computed: {
@@ -188,50 +206,61 @@
         margin-right: 5px;
     }
 
-    .cards {
+    .materials-list {
+        width: 100%;
         display: flex;
         flex-direction: column;
+        row-gap: 5px;
     }
 
-    .card {
-        height: 120px;
-        padding: 7px 0;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-items: center;
-        column-gap: 7px;
-        &:not(:first-child) {
-            border-top: 1px solid #AAA;
+    .material {
+        width: 100%;
+        background-color: #fff;
+        border-radius: 3px;
+        text-align: left;
+        height: max-content;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: 20px 1fr max-content;
+        grid-template-rows: 1em 1em;
+        gap: 1em;
+        border: 1px solid #DDD;
+
+        /*&:not(:first-child) {*/
+        /*    border-top: 1px solid #AAA;*/
+        /*}*/
+        & > .material-title {
+            /*text-wrap: normal;*/
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-left: 20px;
+            background-position: center left;
+            background-size: 15px 15px;
+            background-repeat: no-repeat;
+            justify-self: flex-start;
+            font-weight: bold;
+            &.set {
+                background-image: url("../assets/icons/set-black.svg");
+            }
+            &.collection {
+                background-image: url("../assets/icons/folder.svg");
+            }
+        }
+        & > .material-time {
+            justify-self: flex-end;
+
+        }
+        & > .material-description {
+            grid-column: 2/4;
+            /*text-wrap: normal;*/
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 
-    .card-idx-delete {
-        width: 25px;
-        height: 50%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .card-options {
-        padding-left: 32px;
-        display: flex;
-        flex-direction: row;
-    }
-
-    .btn-flip-card {
-        background: url("../assets/icons/reverse.svg") center center no-repeat;
-        background-size: 20px 20px;
-        width: 20px;
-        height: 20px;
-        &:hover {
-            cursor: pointer;
-        }
-    }
-
-    .btn-remove-card {
+    .btn-remove-material {
+        grid-row: 1/3;
+        align-self: center;
         background: url("../assets/icons/subtract.svg") center center no-repeat;
         background-size: 20px 20px;
         width: 20px;
@@ -241,23 +270,19 @@
         }
     }
 
-    .btn-add-card {
+    .btn-add-material {
+        grid-row: 1/3;
+        align-self: center;
         color: #333;
-        padding-left: 25px;
         background: url("../assets/icons/add.svg") 0 center no-repeat;
         background-size: 20px 20px;
+        width: 20px;
+        height: 20px;
         &:hover {
             background-color: initial;
             cursor: pointer;
         }
     }
 
-    .delete-btn {
-        background: #E95252;
-        &:hover {
-            cursor: pointer;
-            background: #EF5858;
-        }
-    }
 
 </style>

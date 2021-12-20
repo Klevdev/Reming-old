@@ -18,6 +18,7 @@ function validateValue(value, rules) {
 }
 
 const _validators = {
+    match: _match,
     required: _required,
     lengthRange: _lengthRange,
     restrictedChars: _restrictedChars,
@@ -27,6 +28,13 @@ const _validators = {
     date: _date,
     phone: _phone,
 };
+
+function _match(value, matched) {
+    /*
+    matched = {value, name}
+     */
+    return value === matched.value ? true : {error: `Поле должно совпадать с полем "${matched.name}"`};
+}
 
 function _required(value) {
     return value.trim() ? true : {error: "Поле должно быть заполнено"};

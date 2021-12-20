@@ -12,24 +12,20 @@
     <section v-else>
         <div class="end-screen">
             <h1>Итог</h1>
-            <div>
-                <span style="color: #3EAF7C; margin-right: 10px">{{this.getCorrect().length}}</span>
-                <span style="color: #E95252; margin-right: 10px">{{this.getIncorrect().length}}</span>
-                <span>{{getPercentage()}}%</span>
+            <div style="display: flex; flex-direction: column; text-align: left;">
+                <span style="color: #3EAF7C; margin-right: 10px"><strong>{{getCorrect().length}}</strong> Правильно</span>
+                <span style="color: #E95252; margin-right: 10px"><strong>{{getIncorrect().length}}</strong> Неправильно</span>
+                <span>Правильно отвечено <strong>{{getPercentage()}}%</strong> карточек</span>
             </div>
-            <h2>Отвечены верно:</h2>
-            <ul>
-                <li v-for="(answer) in this.getCorrect()">
-                    {{this.cards[answer.idx].idx}}) {{this.cards[answer.idx].question}} - {{this.cards[answer.idx].answer}}
-                </li>
-            </ul>
-            <h2>Отвечены неверно:</h2>
-            <ul>
-                <li v-for="(answer) in this.getIncorrect()">
-                    {{this.cards[answer.idx].idx}}) {{this.cards[answer.idx].question}} - {{this.cards[answer.idx].answer}}
-                </li>
-            </ul>
-            <button type="button" @click="this.save">{{userLoggedIn ? 'Завершить и сохранить' : 'Завершить'}}</button>
+            <strong v-if="getCorrect().length">Отвечены верно:</strong>
+            <div v-for="answer in getCorrect()">
+                {{cards[answer.idx].idx}}) {{cards[answer.idx].question}} - {{cards[answer.idx].answer}}
+            </div>
+            <strong v-if="getIncorrect().length">Отвечены неверно:</strong>
+            <div v-for="answer in getIncorrect()">
+                {{cards[answer.idx].idx}}) {{cards[answer.idx].question}} - {{cards[answer.idx].answer}}
+            </div>
+            <button type="button" @click="save">{{userLoggedIn ? 'Завершить и сохранить' : 'Завершить'}}</button>
         </div>
     </section>
 </template>
@@ -106,7 +102,6 @@
                 }, 500)
                 this.currentCardIdx++;
                 if (this.currentCardIdx >= this.cards.length) {
-                    // this.save();
                     this.studyComplete = true;
                 } else {
                     this.currentCardText = this.cards[this.currentCardIdx].question;
@@ -301,6 +296,7 @@
         flex-direction: column;
         align-items: flex-start;
         justify-content: center;
+        gap: 10px;
         background-color: #FAFAFA;
         padding: 20px 25px;
         border: 1px solid #DDD;

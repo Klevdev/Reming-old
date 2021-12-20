@@ -3,7 +3,7 @@
         <div class="page-header">
             <h1>Мои наборы</h1>
         </div>
-        <div v-if="!materials.length">
+        <div v-if="!materials.length" style="text-align: left">
             У вас пока нет материалов. Но вы можете
             <router-link to="/editor">создать их</router-link>
         </div>

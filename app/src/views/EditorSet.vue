@@ -101,7 +101,7 @@
                         type: 'success',
                         message: this.id ? 'Изменения сохранены' : 'Набор сохранён'
                     })
-                    await router.push(`/material/${result.id}`)
+                    await router.push(`/materials/${result.id}`)
                 }
             },
             addCard() {
@@ -113,6 +113,9 @@
                 });
             },
             removeCard(index) {
+                this.formData.cards.forEach(card => {
+                    if (card.idx > index) card.idx--;
+                });
                 this.formData.cards.splice(index, 1);
             },
             flipCard(index) {

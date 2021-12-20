@@ -2,8 +2,9 @@
     <section class="page-wrapper">
         <div class="page-header">
             <h1>{{this.collectionTitle}}</h1>
+            <router-link :to="{name: 'MaterialPage', params: {id: collectionId}}" class="collection-material-link"/>
         </div>
-        <div v-if="!materials.length">
+        <div v-if="!materials.length" style="text-align: left">
             Коллекция пуста
         </div>
         <MaterialsList :materials="materials"/>
@@ -47,10 +48,22 @@
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
-        gap: 50px;
+        gap: 10px;
         & > h1 {
             text-align: left;
             width: max-content;
         }
+        &:hover > .collection-material-link {
+            display: inline-block;
+        }
+    }
+    .collection-material-link {
+        display: none;
+        width: 20px;
+        height: 20px;
+        background-image: url("../assets/icons/description.svg");
+        background-size: 20px 20px;
+        background-repeat: no-repeat;
+        background-position: center center;
     }
 </style>

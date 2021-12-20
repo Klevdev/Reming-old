@@ -3,24 +3,27 @@
         <div class="material-header">
             <h2>{{material.title}}</h2>
             <div class="btns" style="justify-content: flex-end">
-                <button v-if="!isMaterialInFavorites" type="button" class="btn favorites-add-btn" @click="() => {favoritesAdd(id); this.isMaterialInFavorites = !isMaterialInFavorites}"></button>
-                <button v-if="isMaterialInFavorites" type="button" class="btn favorites-remove-btn" @click="() => {favoritesRemove(id); this.isMaterialInFavorites = !isMaterialInFavorites}"></button>
+                <button v-if="!isMaterialInFavorites" type="button" class="btn favorites-add-btn" @click="() => _favoritesAdd(id)"></button>
+                <button v-if="isMaterialInFavorites" type="button" class="btn favorites-remove-btn" @click="() => _favoritesRemove(id)"></button>
                 <button v-if="material.author === userName" type="button" class="btn edit-btn" @click="this.$router.push(`/editor/${material.type}/${id}`)"></button>
                 <button v-if="material.author === userName" type="button" class="btn delete-btn" @click="deleteSet"></button>
             </div>
         </div>
         <dl>
-            <dt>Описание</dt>
-            <dd style="overflow: hidden;text-overflow: ellipsis;">{{material.description}}</dd>
+            <dt v-if="material.description">Описание</dt>
+            <dd v-if="material.description" style="overflow: hidden;text-overflow: ellipsis;">{{material.description}}</dd>
             <dt>Доступен в библиотеке</dt>
             <dd>{{material.isPublic ? 'Да' : 'Нет'}}</dd>
             <dt>Автор</dt>
             <dd>{{material.author}}</dd>
             <dt>Дата создания</dt>
             <dd>{{material.timeCreated}}</dd>
+            <dt v-if="material.timeUpdated">Последнее изменение</dt>
+            <dd v-if="material.timeUpdated">{{material.timeUpdated}}</dd>
             <dt>Теги</dt>
             <dd>Скоро будут</dd>
         </dl>
+        <router-link v-if="material.type === 'collection'" :to="'/materials/collections/'+material._id">Перейти в коллекцию</router-link>
         <div class="btns">
             <router-link v-if="material.type === 'set'" class="start-btn" :to="'/study/'+id"/>
         </div>
@@ -42,7 +45,7 @@
             }
         },
         computed: {
-            ...mapState(['userName', 'favorites'])
+            ...mapState(['userLoggedIn', 'userName', 'favorites'])
         },
         async created() {
             this.material = await store.dispatch('request', {
@@ -53,6 +56,7 @@
                 router.go(-1);
             }
             this.material.timeCreated = new Date(this.material.timeCreated).toLocaleDateString("ru-RU");
+            if (this.material.timeUpdated) this.material.timeUpdated = new Date(this.material.timeUpdated).toLocaleDateString("ru-RU");
 
             store.commit('updateRecentMaterials', {
                 _id: this.id,
@@ -60,6 +64,7 @@
             });
 
             let favoritesCopy = JSON.parse(JSON.stringify(this.favorites));
+
             let flag = false;
             for (let i = 0; i < favoritesCopy.length; i++) {
                 if (favoritesCopy[i]._id === this.id) {
@@ -72,6 +77,21 @@
         methods: {
             ...mapMutations(['removeFromRecentMaterials']),
             ...mapActions(['favoritesAdd', 'favoritesRemove']),
+            async _favoritesAdd(id) {
+                if (!this.userLoggedIn) {
+                    store.commit('popupShow',{
+                        type: 'info',
+                        message: 'Войдите в профиль чтобы добавить материал в избранное'
+                    });
+                    return;
+                }
+                await this.favoritesAdd(id);
+                this.isMaterialInFavorites = true;
+            },
+            async _favoritesRemove(id) {
+                await this.favoritesRemove(id);
+                this.isMaterialInFavorites = false;
+            },
             async deleteSet() {
                 if (confirm("Вы уверены, что хотите удалить набор?")) {
                     const res = await store.dispatch('request',{
@@ -85,7 +105,7 @@
                         });
                         this.removeFromRecentMaterials({_id: this.id});
                         this.favoritesRemove(this.id)
-                        router.go(-1);
+                        router.push({name: 'MyMaterials'});
                     }
                 }
             }
@@ -96,7 +116,7 @@
 <style scoped lang="scss">
     .material-info {
         margin: 0 auto;
-        width: 400px;
+        width: 460px;
         box-shadow: 0 0 10px #DDD, 0 20px 20px #DDD;
         display: flex;
         flex-direction: column;
@@ -121,12 +141,15 @@
     }
 
     dl {
-        text-align: left;
         display: grid;
-        gap: 5px;
+        gap: 10px;
         grid-template-columns: repeat(2, 1fr);
         & > dt {
+            text-align: left;
             font-weight: bold;
+        }
+        & > dd {
+            text-align: left;
         }
     }
 

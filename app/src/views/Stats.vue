@@ -1,8 +1,11 @@
 <template>
-    <h1>Моя статистика прохождений</h1>
-    <section class="wrapper">
+    <section class="page-wrapper">
+        <div class="page-header">
+            <h1>Моя статистика прохождений</h1>
+        </div>
+        <div v-if="!materials.length" style="text-align: left">Здесь будут показываться результаты прохождений ваших материалов</div>
         <div :class="`material ${material.type}`" v-for="material in materials">
-            <h2><router-link :to="'/material/'+material._id">{{material.title}}</router-link></h2>
+            <h2><router-link :to="{name: 'MaterialPage', params: {id: material._id}}">{{material.title}}</router-link></h2>
             <div class="studies" :style="`height:${getMaxHeight(material)*25}px`">
                 <div class="entry" v-for="study in material.studies">
                     <div class="entry-correct-bar" :style="`height:${study.correctCount * 20 }px`"></div>
@@ -36,7 +39,6 @@
             getMaxHeight(material) {
                 let maxCor = Math.max(...material.studies.map(item => item.correctCount));
                 let maxIncor = Math.max(...material.studies.map(item => item.correctCount));
-                // console.log(Math.max(maxCor, maxIncor))
                 return Math.max(maxCor, maxIncor);
             }
         }
@@ -45,10 +47,20 @@
 </script>
 
 <style scoped lang="scss">
-
-    h1 {
+    .page-wrapper {
         margin-left: 250px;
-        text-align: left;
+    }
+    .page-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+
+        & > h1 {
+            text-align: left;
+            width: max-content;
+        }
     }
     h2 {
         text-align: left;

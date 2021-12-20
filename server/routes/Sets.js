@@ -7,7 +7,7 @@ const mongoClient = new MongoClient(process.env.DB_URL);
 router.post("", async(req, res) => {
     let authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
 
     try {
@@ -17,7 +17,7 @@ router.post("", async(req, res) => {
 
         const user = await users.findOne({ 'auth.token': authToken }, { projection: { auth: 1 } });
         if (!user) {
-            return res.status(400).send({ error: 'Токен недействителен' });
+            return res.status(401).send({ error: 'Токен недействителен' });
         }
         if (user.auth.validThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
@@ -58,7 +58,7 @@ router.post("", async(req, res) => {
 router.put("/:id", async(req, res) => {
     let authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
 
     try {
@@ -68,7 +68,7 @@ router.put("/:id", async(req, res) => {
 
         const user = await collection.findOne({ 'auth.token': authToken }, { projection: { auth: 1 } });
         if (!user) {
-            return res.status(400).send({ error: 'Токен недействителен' });
+            return res.status(401).send({ error: 'Токен недействителен' });
         }
         if (user.auth.validThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
@@ -121,7 +121,7 @@ router.put("/:id", async(req, res) => {
 router.delete("/:id", async(req, res) => {
     const authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
     try {
         await mongoClient.connect();
@@ -131,7 +131,7 @@ router.delete("/:id", async(req, res) => {
         const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1 } });
 
         if (!user) {
-            return res.status(400).send({ error: 'Отсутствует токен' });
+            return res.status(401).send({ error: 'Отсутствует токен' });
         }
         if (user.auth.validThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
@@ -199,7 +199,7 @@ router.get("/:id", async(req, res) => {
         collection = db.collection("materials");
         const material = await collection.findOne({ _id: setId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
         if (!material) {
-            return res.status(400).send({ error: "Материал не найден" });
+            return res.status(401).send({ error: "Материал не найден" });
         }
         if (!(material.userId.toHexString() === userId || material.isPublic)) {
             return res.status(403).send({ error: "У вас нет доступа к этому набору" });
@@ -224,7 +224,7 @@ router.get("/:id", async(req, res) => {
 router.get("/repetitions/:id", async(req, res) => {
     let authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
 
     try {
@@ -279,7 +279,7 @@ router.get("/repetitions/:id", async(req, res) => {
 router.put("/repetitions/:id", async(req, res) => {
     let authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
 
     try {

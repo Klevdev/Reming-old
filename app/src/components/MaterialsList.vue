@@ -7,7 +7,6 @@
                     <div class="description">{{material.description}}</div>
                 </div>
                 <router-link v-if="material.type === 'set'" class="btn start-btn" :to="'/study/'+material._id" />
-<!--                <router-link v-if="material.type === 'collection'" class="btn edit-btn" :to="'/material/'+material._id" />-->
             </router-link>
         </div>
     </section>

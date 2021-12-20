@@ -33,6 +33,11 @@
         },
         data() {
             return {
+                formData: {
+                    name: null,
+                    email: null,
+                    password: null,
+                },
                 inputAttributes: {
                     name: {
                         label: "Имя пользователя",
@@ -76,14 +81,9 @@
                         placeholder: "Пароль",
                         prompt: "",
                         rules: {
-                            required: true
+                            required: true,
                         },
                     },
-                },
-                formData: {
-                    name: null,
-                    email: null,
-                    password: null,
                 },
                 passwordRepeat: null,
             }
@@ -101,6 +101,12 @@
                 }
             }
         },
+        updated() {
+            this.inputAttributes.passwordRepeat.rules.match = {
+                value: this.formData.password,
+                name: this.inputAttributes.password.label
+            };
+        }
     }
 </script>
 

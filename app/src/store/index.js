@@ -67,6 +67,7 @@ export default createStore({
                 type: 'success',
                 message: `Добро пожаловать, ${state.userName}`
             });
+            this.dispatch('favoritesFetch')
         },
         userLogOut(state) {
             localStorage.removeItem('user');
@@ -77,6 +78,9 @@ export default createStore({
                 type: 'success',
                 message: 'Вы вышли из профиля'
             });
+            this.commit('emptyRecentMaterials');
+            state.favorites = [];
+            router.push({name: 'Home'});
         },
         formErrorOccurred(state) {
             state.formHasError = true;
@@ -110,8 +114,11 @@ export default createStore({
                     state.recentMaterials.splice(i, 1);
                 }
             }
-
             localStorage.setItem('recentMaterials', JSON.stringify(state.recentMaterials));
+        },
+        emptyRecentMaterials(state) {
+            state.recentMaterials = null;
+            localStorage.removeItem('recentMaterials');
         },
     },
     actions: {
@@ -132,6 +139,10 @@ export default createStore({
             });
             let response = await res.json();
             if (res.status !== 200) {
+                if (res.status === 401) {
+                    context.commit('userLogOut');
+                    await router.push({name: 'Login'});
+                }
                 console.error(response.error);
                 context.commit('popupShow',{
                     type: 'error',
@@ -142,6 +153,9 @@ export default createStore({
             return response;
         },
         async favoritesFetch(context) {
+            if (!context.state.userLoggedIn) {
+                return;
+            }
             const res = await context.dispatch('request',{
                 path: `users/favorites`,
                 method: 'GET',

@@ -37,7 +37,6 @@ router.post("", async(req, res) => {
         if (!insert) {
             return res.status(500).send({ error: 'Ошибка базы данных' });
         }
-
         let collMaterials = req.body.materials.map(id => new ObjectId(id));
         const collections = db.collection("collections");
         insert = await collections.insertOne({ materialId: material._id, materials: collMaterials });
@@ -45,10 +44,11 @@ router.post("", async(req, res) => {
             return res.status(500).send({ error: 'Ошибка базы данных' });
         }
 
-        collection = db.collection("materials");
-        const materials = await collection.find({ _id: { $in: collMaterials } }).toArray();
+        // collection = db.collection("materials");
+        // const materials = await collection.find({ _id: { $in: collMaterials } }).toArray();
 
-        return res.send(materials);
+        // return res.send(materials);
+        return res.send({ id: material._id });
 
     } catch (err) {
         console.error(err);
@@ -86,7 +86,7 @@ router.put("/:id", async(req, res) => {
         }
 
         col = {
-            type: "col",
+            type: "collection",
             title: req.body.title,
             description: req.body.description,
             isPublic: req.body.isPublic,
@@ -113,10 +113,62 @@ router.put("/:id", async(req, res) => {
             }
         }
 
-        collection = db.collection("materials");
-        const materials = await collection.find({ _id: { $in: collMaterials } }).toArray();
+        // collection = db.collection("materials");
+        // const materials = await collection.find({ _id: { $in: collMaterials } }).toArray();
 
-        return res.send(materials);
+        // return res.send(materials);
+        return res.send({ id: collectionId });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ error: err });
+    } finally {
+        await mongoClient.close();
+    }
+});
+
+router.patch("/:id/:materialId", async(req, res) => {
+    let authToken = req.headers['x-access-token'];
+    if (authToken === '' || authToken === undefined || authToken === null) {
+        return res.status(400).send({ error: 'Отсутствует токен' });
+    }
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db("reming");
+        let collection = db.collection("users");
+
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { auth: 1 } });
+        if (!user) {
+            return res.status(400).send({ error: 'Токен недействителен' });
+        }
+        if (user.auth.validThru < Date.now()) {
+            return res.status(401).send({ error: "Время сеанса истекло" });
+        }
+
+        const collectionId = new ObjectId(req.params.id);
+        collection = db.collection("materials");
+        let col = await collection.findOne({ _id: collectionId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
+        if (col.userId.toHexString() !== user._id.toHexString()) {
+            return res.status(403).send({ error: "У вас нет доступа к этой коллекции" });
+        }
+
+        collection = db.collection("collections");
+        update = await collection.updateOne({ materialId: collectionId }, {
+            $push: { materials: new ObjectId(req.params.materialId) }
+        });
+        if (!update.matchedCount || !update.modifiedCount) {
+            let insert = await collection.insertOne({ materialId: collectionId, materials: collMaterials });
+            if (!insert) {
+                return res.status(500).send({ error: 'Ошибка базы данных 2' });
+            }
+        }
+
+        // collection = db.collection("materials");
+        // const materials = await collection.find({ _id: { $in: collMaterials } }).toArray();
+
+        // return res.send(materials);
+        return res.send({ ok: 1 });
 
     } catch (err) {
         console.error(err);
@@ -129,7 +181,7 @@ router.put("/:id", async(req, res) => {
 router.delete("/:id", async(req, res) => {
     const authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
     try {
         await mongoClient.connect();
@@ -139,7 +191,7 @@ router.delete("/:id", async(req, res) => {
         const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1 } });
 
         if (!user) {
-            return res.status(400).send({ error: 'Отсутствует токен' });
+            return res.status(401).send({ error: 'Отсутствует токен' });
         }
         if (user.auth.validThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
@@ -176,7 +228,7 @@ router.get("/:id", async(req, res) => {
     // Проверку авторизации следует делать только если набор не публичный
     let authToken = req.headers['x-access-token'];
     // if (authToken === '' || authToken === undefined || authToken === null) {
-    //     return res.status(400).send({ error: 'Отсутствует токен' });
+    //     return res.status(401).send({ error: 'Отсутствует токен' });
     // }
 
     try {

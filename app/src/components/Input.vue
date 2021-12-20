@@ -43,7 +43,7 @@
                     store.commit('formErrorSolved');
                 }
             }
-        }
+        },
     }
 </script>
 

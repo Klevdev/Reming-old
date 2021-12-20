@@ -70,7 +70,7 @@ router.post('/login', async(req, res) => {
 
         const find = await users.findOne(query, { projection: { _id: 0, name: 1 } });
         if (!find) {
-            return res.status(401).send({ error: "Неправильный логин или пароль" });
+            return res.status(400).send({ error: "Неправильный логин или пароль" });
         }
         let tokenRaw;
         let authToken;
@@ -107,7 +107,7 @@ router.post('/login', async(req, res) => {
 router.post('/logout', async(req, res) => {
     let authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
 
     try {
@@ -137,7 +137,7 @@ router.post('/logout', async(req, res) => {
 router.put('', async(req, res) => {
     let authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
 
     try {
@@ -165,7 +165,7 @@ router.put('', async(req, res) => {
             $set: query
         });
         if (!update.matchedCount || !update.modifiedCount) {
-            return res.status(401).send({ error: 'Пользователь не найден' });
+            return res.status(400).send({ error: 'Пользователь не найден' });
         } else {
             return res.send({ ok: 1 });
         }
@@ -181,7 +181,7 @@ router.put('', async(req, res) => {
 router.delete('', async(req, res) => {
     let authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
 
     const password = hash(req.body.password);
@@ -222,7 +222,7 @@ router.delete('', async(req, res) => {
 router.post('/favorites/:materialId', async(req, res) => {
     let authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
 
     try {
@@ -239,10 +239,12 @@ router.post('/favorites/:materialId', async(req, res) => {
 
         const materialId = new ObjectId(req.params.materialId);
 
-        const check = user.favorites.filter(itemId => itemId.toHexString() === req.params.materialId);
+        if (user.favorites) {
+            const check = user.favorites.filter(itemId => itemId.toHexString() === req.params.materialId);
 
-        if (check.length) {
-            return res.status(409).send({ error: 'Материал уже в избранном' });
+            if (check.length) {
+                return res.status(409).send({ error: 'Материал уже в избранном' });
+            }
         }
 
         const update = await collection.updateOne({ _id: user._id }, {
@@ -274,7 +276,7 @@ router.post('/favorites/:materialId', async(req, res) => {
 router.get('/favorites', async(req, res) => {
     let authToken = req.headers['x-access-token'];
     if (authToken === '' || authToken === undefined || authToken === null) {
-        return res.status(400).send({ error: 'Отсутствует токен' });
+        return res.status(401).send({ error: 'Отсутствует токен' });
     }
 
     try {
@@ -287,6 +289,10 @@ router.get('/favorites', async(req, res) => {
         const authValidThru = user.auth.validThru;
         if (authValidThru < Date.now()) {
             return res.status(401).send({ error: "Время сеанса истекло" });
+        }
+
+        if (!user.favorites) {
+            return res.status(200).send([]);
         }
 
         collection = db.collection("materials");

@@ -21,7 +21,7 @@ const routes = [
                 }
             ]
         },
-        beforeEnter: async (to, from, next) => {
+        beforeEnter: async () => {
             await router.push({name: 'Library'});
         },
     },
@@ -40,7 +40,7 @@ const routes = [
     },
     {
         path: '/login',
-        name: 'Log in',
+        name: 'Login',
         beforeEnter: (to, from, next) => {
             if (store.state.userLoggedIn) {
                 store.commit('popupShow',{
@@ -61,7 +61,7 @@ const routes = [
     },
     {
         path: '/signup',
-        name: 'Sign up',
+        name: 'Signup',
         beforeEnter: (to, from, next) => {
             if (store.state.userLoggedIn) {
                 store.commit('popupShow',{
