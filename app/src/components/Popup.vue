@@ -1,12 +1,8 @@
 <template>
-    <div class="popup-block" :class="`${popupType} ${popupShow ? 'shown' : ''}`">
-        <div class="popup-icon" :class="popupType" v-if="popupType === 'success'">✓</div>
-        <div class="popup-icon" :class="popupType" v-if="popupType === 'error'">!</div>
-        <div class="popup-icon" :class="popupType" v-if="popupType === 'info'">i</div>
-        <div class="message-block">
-            {{popupMessage}}
-        </div>
-        <button id="close-btn" @click="popupClose">✕</button>
+    <div class="popup-block" :class="`${popupProps.type} ${popupShow ? 'shown' : ''}`">
+        <div class="message">{{popupProps.message}}</div>
+        <button id="close-btn" @click="popupClose"></button>
+        <router-link v-if="popupProps.actionRoute" class="action" :to="popupProps.actionRoute">{{popupProps.actionText}}</router-link>
     </div>
 </template>
 
@@ -15,10 +11,17 @@
     export default {
         name: "Popup",
         computed: {
-            ...mapState(['popupShow', 'popupMessage', 'popupType'])
+            ...mapState(['popupShow', 'popupProps'])
         },
         data() {
             return {
+                // popupShow: true,
+                // popupProps: {
+                //     type: 'info',
+                //     message: "Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing",
+                //     actionRoute: {name: 'Login'},
+                //     actionText: "Войти"
+                // },
             }
         },
         methods: {
@@ -29,60 +32,67 @@
 
 <style scoped lang="scss">
     .popup-block {
-        width: 300px;
-        min-height: 5em;
+        z-index: 70;
+        width: 350px;
+        min-height: max-content;
         color: #222;
         position: fixed;
-        bottom: -200px;
-        right: 25px;
-        padding: .5em 1em;
-        border-radius: 5px;
+        bottom: 25px;
+        right: -400px;
         display: grid;
-        place-items: center;
-        grid-template-columns: 2em 1fr 25px;
+        grid-template-columns: 1fr max-content;
+        grid-auto-rows: max-content;
         gap: 10px;
-        transition: bottom .4s ease-in-out;
+        padding-left: 35px;
+        padding-bottom: 10px;
+        transition: right .4s ease-in-out;
+        background-color: #fff;
+        border: 1px solid #DDD;
+        box-shadow: 0 0 10px #DDD, 0 20px 20px #DDD;
+        background-size: 20px 20px;
+        background-position: .5em .5em;
+        background-repeat: no-repeat;
 
         &.shown {
-            bottom: 10px;
+            right: 25px;
+        }
+
+        &.success {
+            background-image: url("../assets/icons/success.svg");
+        }
+        &.info {
+            background-image: url("../assets/icons/info.svg");
+        }
+        &.error {
+            background-image: url("../assets/icons/error.svg");
         }
     }
 
-    .popup-icon {
-        font-weight: bold;
-        display: grid;
-        place-items: center;
-        border: 2px solid #222;
-        border-radius: 50%;
-        height: 1.8em;
-        width: 1.8em;
-        user-select: none;
-    }
-
-    .message-block {
-        font-size: .8em;
-        height: 80%;
+    .message {
+        font-size: .9em;
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         justify-content: center;
         text-align: left;
+        padding-top: 10px;
+    }
+
+    .action {
+        font-size: .9em;
+        text-align: left;
     }
 
     #close-btn {
-        font-size: 1em;
-        position: relative;
-        bottom: .4em;
-        left: .8em;
+        background: url("../assets/icons/cross-black.svg") no-repeat center center;
+        background-size: 10px 10px;
         padding: 0;
         place-self: flex-start;
         display: grid;
         place-items: center;
-        border: none;
-        width: 25px;
-        height: 25px;
-        background: none;
+        width: 35px;
+        height: 35px;
         &:hover {
             color: #555;
             cursor: pointer;
@@ -90,14 +100,14 @@
     }
 
     .success {
-        background-color: #3EAF7C;
+        border-left: 3px solid #3EAF7C;
     }
     
     .error {
-        background-color: #E95252;
+        border-left: 3px solid #E95252;
     }
     
     .info {
-        background-color: #A1C4FD;
+        border-left: 3px solid #A1C4FD;
     }
 </style>

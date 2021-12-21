@@ -41,6 +41,7 @@
                 method: 'GET'
             });
             if (this.materials.hasOwnProperty('error')) {
+                this.materials = [];
                 this.$router.back();
             }
         },

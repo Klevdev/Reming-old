@@ -99,9 +99,10 @@ const routes = [
             if (!store.state.userLoggedIn) {
                 store.commit('popupShow',{
                     type: 'info',
-                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                    message: 'Для доступа к разделу необходимо войти в аккаунт',
+                    actionRoute: {name: 'Login'},
+                    actionText: 'Войти'
                 });
-                next("/login");
             } else {
                 next();
             }
@@ -121,9 +122,10 @@ const routes = [
             if (!store.state.userLoggedIn) {
                 store.commit('popupShow',{
                     type: 'info',
-                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                    message: 'Для доступа к разделу необходимо войти в аккаунт',
+                    actionRoute: {name: 'Login'},
+                    actionText: 'Войти'
                 });
-                next("/login");
             } else {
                 next();
             }
@@ -142,9 +144,10 @@ const routes = [
             if (!store.state.userLoggedIn) {
                 store.commit('popupShow',{
                     type: 'info',
-                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                    message: 'Для доступа к разделу необходимо войти в аккаунт',
+                    actionRoute: {name: 'Login'},
+                    actionText: 'Войти'
                 });
-                next("/login");
             } else {
                 next();
             }
@@ -163,9 +166,10 @@ const routes = [
             if (!store.state.userLoggedIn) {
                 store.commit('popupShow',{
                     type: 'info',
-                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                    message: 'Для доступа к разделу необходимо войти в аккаунт',
+                    actionRoute: {name: 'Login'},
+                    actionText: 'Войти'
                 });
-                next("/login");
             } else {
                 next();
             }
@@ -205,9 +209,10 @@ const routes = [
         //     if (!store.state.userLoggedIn) {
         //         store.commit('popupShow',{
         //             type: 'info',
-        //             message: 'Для доступа к разделу необходимо войти в аккаунт'
-        //         });
-        //         next("/login");
+        //             message: 'Для доступа к разделу необходимо войти в аккаунт',
+        //                     actionRoute: {name: 'Login'},
+        //                     actionText: 'Войти'
+        //                 });
         //     } else {
         //         next();
         //     }
@@ -227,9 +232,10 @@ const routes = [
             if (!store.state.userLoggedIn) {
                 store.commit('popupShow',{
                     type: 'info',
-                    message: 'Для доступа к разделу необходимо войти в аккаунт'
+                    message: 'Для доступа к разделу необходимо войти в аккаунт',
+                    actionRoute: {name: 'Login'},
+                    actionText: 'Войти'
                 });
-                next("/login");
             } else {
                 next();
             }

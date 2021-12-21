@@ -34,7 +34,7 @@
         z-index: -100;
         opacity: 0;
 
-        & > .animation::after,
+        /*& > .animation::after,*/
         & > .animation::before {
             animation-play-state: paused;
         }
@@ -45,7 +45,7 @@
         place-items: center;
         opacity: 1;
 
-        & > .animation::after,
+        /*& > .animation::after,*/
         & > .animation::before {
             animation-play-state: running;
         }
@@ -66,20 +66,20 @@
         }
     }
 
-    @keyframes ellipsis {
-        0% {
-            content: "";
-        }
-        25% {
-            content: ".";
-        }
-        50% {
-            content: "..";
-        }
-        75% {
-            content: "...";
-        }
-    }
+    /*@keyframes ellipsis {*/
+    /*    0% {*/
+    /*        content: "";*/
+    /*    }*/
+    /*    25% {*/
+    /*        content: ".";*/
+    /*    }*/
+    /*    50% {*/
+    /*        content: "..";*/
+    /*    }*/
+    /*    75% {*/
+    /*        content: "...";*/
+    /*    }*/
+    /*}*/
 
     .animation {
         position: absolute;
@@ -106,9 +106,9 @@
         &::after {
             content: "";
             position: absolute;
-            animation-name: ellipsis;
-            animation-duration: 2s;
-            animation-iteration-count: infinite;
+            /*animation-name: ellipsis;*/
+            /*animation-duration: 2s;*/
+            /*animation-iteration-count: infinite;*/
         }
     }
 </style>

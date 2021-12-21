@@ -10,9 +10,8 @@ export default createStore({
 
             formHasError: false,
 
-            popupMessage: null,
-            popupType: null,
             popupShow: false,
+            popupProps: {},
             popupTimeoutId: null,
 
             loadingAnimationPlaying: false,
@@ -28,8 +27,10 @@ export default createStore({
             }
             setTimeout(() => {
                 state.popupShow = true;
-                state.popupMessage = payload.message;
-                state.popupType = payload.type;
+                state.popupProps.message = payload.message;
+                state.popupProps.type = payload.type;
+                state.popupProps.actionRoute = payload.actionRoute;
+                state.popupProps.actionText = payload.actionText;
                 state.popupTimeoutId = setTimeout(() => {
                     this.commit('popupClose');
                 }, 5000);
@@ -41,8 +42,7 @@ export default createStore({
             state.popupTimeoutId = null;
             state.popupShow = false;
             setTimeout(() => {
-                state.popupMessage = null;
-                state.popupType = null;
+                state.popupProps = {};
             }, 400);
         },
         userLogIn(state, payload) {
@@ -170,7 +170,7 @@ export default createStore({
                 path: `users/favorites`,
                 method: 'GET',
             });
-            if (res.status !== 200) {
+            if (!res.hasOwnProperty('error')) {
                 context.state.favorites = res;
             }
         },
