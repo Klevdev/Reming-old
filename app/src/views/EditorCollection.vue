@@ -198,7 +198,9 @@
     }
 
     .materials-list {
-        width: 100%;
+        width: calc(100% + 17px);
+        max-height: 300px;
+        overflow-y: scroll;
         display: flex;
         flex-direction: column;
         row-gap: 5px;

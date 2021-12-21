@@ -35,12 +35,14 @@
                 // searchParams: [],
             }
         },
-        async beforeMount() {
+        async created() {
             this.materials = await store.dispatch('request', {
                 path: 'materials/public',
                 method: 'GET'
             });
-            // this.materials.forEach(material => this.materialsShown.push(material._id));
+            if (this.materials.hasOwnProperty('error')) {
+                this.$router.back();
+            }
         },
         methods: {
             // search() {}

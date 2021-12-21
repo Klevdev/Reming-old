@@ -1,10 +1,9 @@
 <template>
     <Header @toggle-sidebar="toggleSidebar()"/>
     <Sidebar :collapsed="sidebarCollapsed"/>
-<!--    <button @click="loadingPlaying = !loadingPlaying" style="position: absolute; z-index: 110">ы</button>-->
     <Popup/>
     <Prompt/>
-<!--    <Loading/>-->
+    <Loading/>
     <router-view :key="$route.fullPath"/>
 </template>
 

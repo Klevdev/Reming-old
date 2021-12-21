@@ -8,10 +8,10 @@
         <div id="user-name">{{userName}}</div>
 <!--        <button id="toggle-user-dropdown" :class="{arrowUp: showDropDown}"></button>-->
     </div>
-    <ul v-if="userLoggedIn && showDropDown" class="dropdown">
-        <li><router-link to="/mystats">Моя статистика</router-link></li>
-        <li id="logout" @click="userLogOut">Выйти</li>
-    </ul>
+    <div v-if="userLoggedIn && showDropDown" class="dropdown">
+        <router-link to="/mystats">Моя статистика</router-link>
+        <div id="logout" @click="userLogOut">Выйти</div>
+    </div>
 </template>
 
 <script>
@@ -121,7 +121,7 @@
         border-radius: 0 0 3px 3px;
         background-color: #FAFAFA;
 
-        & > li {
+        & > * {
             text-align: left;
             display: block;
             width: 100%;

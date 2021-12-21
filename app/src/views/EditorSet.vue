@@ -6,8 +6,8 @@
             <label for="description">Описание</label>
             <textarea v-model="formData.description" name="description" id="description" placeholder="Карточки для подготовки к экзамену" maxlength="100"></textarea>
             <Checkbox v-model="formData.isPublic" :attributes="inputAttributes.isPublic"/>
+            <span v-if="formData.cards.length" style="text-align: left">Карточки набора:</span>
             <div v-if="formData.cards.length" class="cards">
-                <span style="text-align: left">Карточки набора:</span>
                 <div class="card" v-for="(card, index) in formData.cards" :key="index">
                     <div class="card-idx-delete">
                         <span>{{index+1}}</span>
@@ -167,7 +167,6 @@
     }
 
     textarea {
-        min-width: 100px;
         width: 100%;
         /*max-width: 250px;*/
         height: 70px;
@@ -184,7 +183,9 @@
     }
 
     .cards {
-        width: 100%;
+        width: calc(100% + 17px);
+        max-height: 360px;
+        overflow-y: scroll;
         display: flex;
         flex-direction: column;
         gap: 5px;
@@ -207,6 +208,7 @@
         flex-direction: row;
         flex-wrap: wrap;
         align-items: center;
+        overflow-x: visible;
         column-gap: 7px;
         background-color: #fff;
         border: 1px solid #DDD;

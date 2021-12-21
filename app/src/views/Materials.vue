@@ -31,6 +31,9 @@
                 path: 'materials/personal',
                 method: 'GET'
             });
+            if (this.materials.hasOwnProperty('error')) {
+                this.$router.back();
+            }
         }
     }
 </script>

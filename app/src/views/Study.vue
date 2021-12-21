@@ -1,7 +1,8 @@
 <template>
     <section v-if="!studyComplete">
         <div class="card" :class="cardAnimation" @dblclick="flip">
-            {{currentCardText}}
+            <div class="card-idx">{{currentCardIdx + 1}}</div>
+            <div class="card-text">{{currentCardText}}</div>
         </div>
         <div class="buttons">
             <button type="button" class="btn incorrect-btn" @click="answer(false)" :disabled="!currentCardFlipped || cardAnimation"></button>
@@ -44,7 +45,8 @@
             return {
                 studyComplete: false,
                 id: this.$route.params.id,
-                currentCardIdx: -1,
+                currentCardIndex: -1,
+                currentCardIdx: null,
                 currentCardText: null,
                 currentCardSide: 0,
                 currentCardFlipped: false,
@@ -94,18 +96,18 @@
                 if (this.currentCardSide === 0) {
                     this.currentCardSide = 1;
                     setTimeout(() => {
-                        this.currentCardText = this.cards[this.currentCardIdx].answer;
+                        this.currentCardText = this.cards[this.currentCardIndex].answer;
                     }, 250);
                 } else {
                     this.currentCardSide = 0;
                     setTimeout(() => {
-                        this.currentCardText = this.cards[this.currentCardIdx].question;
+                        this.currentCardText = this.cards[this.currentCardIndex].question;
                     }, 250);
                 }
             },
             answer(correct) {
                 answers.push({
-                    idx: this.cards[this.currentCardIdx].idx,
+                    idx: this.cards[this.currentCardIndex].idx,
                     correct: correct
                 });
                 this.cardAnimation = correct ? 'correct' : 'incorrect';
@@ -119,11 +121,12 @@
                 setTimeout(() => {
                     this.cardAnimation = null;
                 }, 500)
-                this.currentCardIdx++;
-                if (this.currentCardIdx >= this.cards.length) {
+                this.currentCardIndex++;
+                if (this.currentCardIndex >= this.cards.length) {
                     this.studyComplete = true;
                 } else {
-                    this.currentCardText = this.cards[this.currentCardIdx].question;
+                    this.currentCardIdx = this.cards[this.currentCardIndex].idx;
+                    this.currentCardText = this.cards[this.currentCardIndex].question;
                     this.currentCardSide = 0;
                     this.currentCardFlipped = false;
                 }
@@ -249,6 +252,21 @@
         background-color: #FAFAFA;
         padding: 20px 25px;
         border-radius: 5px;
+
+        & > .card-idx {
+            color: #DDD;
+            font-size: 1rem;
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            &::before {
+                content: '№ ';
+            }
+        }
+
+        & > .card-text {
+
+        }
     }
 
     /*.appear-enter, .appear-leave {*/

@@ -27,13 +27,15 @@
         width: 100vw;
         height: 100vh;
         background-color: #DDDDDDDD;
+        transition: opacity .3s;
     }
 
     .hidden {
-        display: none;
+        z-index: -100;
+        opacity: 0;
 
-        & > .animation::after {
-            content: "";
+        & > .animation::after,
+        & > .animation::before {
             animation-play-state: paused;
         }
     }
@@ -41,14 +43,30 @@
     .shown {
         display: grid;
         place-items: center;
+        opacity: 1;
 
-        & > .animation::after {
-            content: "";
+        & > .animation::after,
+        & > .animation::before {
             animation-play-state: running;
         }
     }
 
-    @keyframes animate {
+    @keyframes card {
+        0% {
+            transform: scale(1, 1);
+        }
+        25% {
+            transform: scale(-1, 1);
+        }
+        50% {
+            transform: scale(-1, -1);
+        }
+        75% {
+            transform: scale(1, -1);
+        }
+    }
+
+    @keyframes ellipsis {
         0% {
             content: "";
         }
@@ -64,9 +82,33 @@
     }
 
     .animation {
-        position: fixed;
+        position: absolute;
+        top: 48%;
+        left: 48%;
+
+        &::before {
+            --width: 6.5em;
+            --height: 3.7em;
+            content: "";
+            position: absolute;
+            left: calc(48% - var(--width)/2.1);
+            top: calc(48% - var(--height)/2);
+            display: inline-block;
+            width: var(--width);
+            height: var(--height);
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            animation-name: card;
+            animation-duration: 2.5s;
+            animation-iteration-count: infinite;
+        }
+
         &::after {
-            animation: animate 2s infinite;
+            content: "";
+            position: absolute;
+            animation-name: ellipsis;
+            animation-duration: 2s;
+            animation-iteration-count: infinite;
         }
     }
 </style>

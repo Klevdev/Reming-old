@@ -74,10 +74,10 @@ export default createStore({
             state.userLoggedIn = false;
             state.userName = undefined;
             state.userToken = '';
-            this.commit('popupShow',{
-                type: 'success',
-                message: 'Вы вышли из профиля'
-            });
+            // this.commit('popupShow',{
+            //     type: 'success',
+            //     message: 'Вы вышли из профиля'
+            // });
             this.commit('emptyRecentMaterials');
             state.favorites = [];
             router.push({name: 'Home'});
@@ -128,29 +128,39 @@ export default createStore({
             */
             context.state.loadingAnimationPlaying = true;
             const uri = "http://localhost:3000/" + params.path;
-            const res = await fetch(uri, {
-                method: params.method,
-                headers: {
-                    'x-access-token': context.state.userToken,
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'same-origin',
-                body: params.hasOwnProperty("body") ? params.body : undefined
-            });
-            let response = await res.json();
-            if (res.status !== 200) {
-                if (res.status === 401) {
-                    context.commit('userLogOut');
-                    await router.push({name: 'Login'});
+            try {
+                const res = await fetch(uri, {
+                    method: params.method,
+                    headers: {
+                        'x-access-token': context.state.userToken,
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: params.hasOwnProperty("body") ? params.body : undefined
+                });
+                let response = await res.json();
+                if (res.status !== 200) {
+                    console.error(response.error);
+                    context.commit('popupShow',{
+                        type: 'error',
+                        message: response.error
+                    });
+                    if (res.status === 401) {
+                        // я не знаю как мне лучше сделать это при текущем устройстве
+                        // context.commit('userLogOut');
+                    }
                 }
-                console.error(response.error);
+                context.state.loadingAnimationPlaying = false;
+                return response;
+            } catch (e) {
+                context.state.loadingAnimationPlaying = false;
+                console.error(e);
                 context.commit('popupShow',{
                     type: 'error',
-                    message: response.error
+                    message: 'Произошла ошибка запроса. Возможно сервер недоступен'
                 });
+                return {error: 'Failed to fetch'};
             }
-            context.state.loadingAnimationPlaying = false;
-            return response;
         },
         async favoritesFetch(context) {
             if (!context.state.userLoggedIn) {

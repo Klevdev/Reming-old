@@ -56,6 +56,10 @@
         justify-content: flex-start;
         align-items: start;
         transition: width .2s ease-in-out;
+
+        & a {
+            transition: none;
+        }
     }
     .collapsed {
         width: $collapsedWidth;
@@ -81,6 +85,7 @@
             text-overflow: ellipsis;
             width: 100%;
             padding: 10px 20px 10px 70px;
+
             &:hover {
                 color: #4285F4;
                 background-color: #F3F3F3;
