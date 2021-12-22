@@ -14,14 +14,22 @@
             <dd v-if="material.description" style="overflow: hidden;text-overflow: ellipsis;">{{material.description}}</dd>
             <dt>Доступен в библиотеке</dt>
             <dd>{{material.isPublic ? 'Да' : 'Нет'}}</dd>
+            <dt v-if="material.views">Просмотры</dt>
+            <dd v-if="material.views">{{material.views}}</dd>
             <dt>Автор</dt>
             <dd>{{material.author}}</dd>
             <dt>Дата создания</dt>
             <dd>{{material.timeCreated}}</dd>
             <dt v-if="material.timeUpdated">Последнее изменение</dt>
             <dd v-if="material.timeUpdated">{{material.timeUpdated}}</dd>
-            <dt>Теги</dt>
-            <dd>Скоро будут</dd>
+            <dt v-if="material.ratingAvg">Оценка пользователей</dt>
+            <dd v-if="material.ratingAvg">{{material.ratingAvg}}</dd>
+            <dt v-if="material.author !== userName">Оставить оценку</dt>
+            <dd v-if="material.author !== userName">
+                <div class="rating">
+                    <button type="button" class="star" v-for="i in [1, 2, 3, 4, 5]" @click="rate(i)"></button>
+                </div>
+            </dd>
         </dl>
         <router-link v-if="material.type === 'collection'" :to="'/materials/collections/'+material._id">Перейти в коллекцию</router-link>
         <div v-if="material.type === 'set'" class="study">
@@ -99,6 +107,22 @@
                 await this.favoritesRemove(id);
                 this.isMaterialInFavorites = false;
             },
+            async rate(rating) {
+                const res = await store.dispatch('request',{
+                    path: `materials/ratings/${this.id}`,
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                        rating: rating
+                    })
+                });
+                if (!res.hasOwnProperty('error')) {
+                    store.commit('popupShow',{
+                        type: 'success',
+                        message: 'Вы оставили отзыв'
+                    });
+                    this.material.ratingAvg = res.ratingAvg;
+                }
+            },
             async deleteSet() {
                 if (confirm("Вы уверены, что хотите удалить набор?")) {
                     const res = await store.dispatch('request',{
@@ -164,6 +188,21 @@
         }
         & > dd {
             text-align: left;
+        }
+    }
+
+    .rating {
+        display: flex;
+        gap: 5px;
+    }
+
+    .star {
+        background: url("../assets/icons/star-gray.svg") center center no-repeat;
+        background-size: 15px 15px;
+
+        &:hover {
+            background: url("../assets/icons/star-filled.svg") center center no-repeat;
+            background-size: 15px 15px;
         }
     }
 

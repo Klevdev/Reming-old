@@ -94,7 +94,10 @@
                     store.commit('popupShow', {
                         type: 'success',
                         message: this.id ? 'Изменения сохранены' : 'Набор сохранён'
-                    })
+                    });
+                    store.commit('removeFromRecentMaterials', {
+                        _id: this.id
+                    });
                     await router.push(`/materials/${result.id}`)
                 }
             },

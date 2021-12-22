@@ -65,7 +65,6 @@ router.get("", async(req, res) => {
         await mongoClient.connect();
         const db = mongoClient.db("reming");
 
-
         let query = {};
         if (req.query.private) {
             let authToken = req.headers['x-access-token'];
@@ -147,5 +146,88 @@ router.get("", async(req, res) => {
     }
 });
 
+router.patch("/ratings/:id", async(req, res) => {
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db("reming");
+
+        let authToken = req.headers['x-access-token'];
+        if (authToken === '' || authToken === undefined || authToken === null) {
+            return res.status(401).send({ error: 'Отсутствует токен' });
+        }
+        let collection = db.collection("users");
+        let user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1, name: 1 } });
+        if (!user) {
+            return res.status(401).send({ error: 'Токен недействителен' });
+        }
+        if (user.auth.validThru < Date.now()) {
+            return res.status(401).send({ error: "Время сеанса истекло" });
+        }
+
+        const materialId = new ObjectId(req.params.id);
+        collection = db.collection("materials");
+        const material = await collection.findOne({ _id: materialId }, { projection: { _id: 0, userId: 1, ratings: 1, ratingAvg: 1 } });
+
+        if (material.userId.toHexString() === user._id.toHexString()) {
+            return res.status(403).send({ error: "Вы не можете оценивать свой материал" });
+        }
+
+        if (!req.body.rating) {
+            return res.status(400).send({ error: "Не указана оценка" });
+        }
+
+        const newRating = {
+            userId: user._id,
+            rating: req.body.rating
+        };
+
+        let userAlreadyRated = false;
+        let ratingAvg;
+        if (material.ratingAvg) {
+            let sum = newRating.rating;
+            let count = 1;
+            material.ratings.forEach(rating => {
+                if (rating.userId.toHexString() === user._id.toHexString()) {
+                    userAlreadyRated = true;
+                } else {
+                    count++;
+                    sum += rating.rating;
+                }
+            });
+            ratingAvg = sum / count;
+        } else {
+            ratingAvg = newRating.rating;
+        }
+
+        let update;
+        if (userAlreadyRated) {
+            update = await collection.updateOne({ _id: materialId, "ratings.userId": user._id }, {
+                $set: {
+                    ratingAvg: ratingAvg,
+                    "ratings.$.rating": newRating.rating
+                }
+            });
+        } else {
+            update = await collection.updateOne({ _id: materialId }, {
+                $set: { ratingAvg: ratingAvg },
+                $push: {
+                    ratings: newRating
+                }
+            });
+        }
+
+        // if (!update.matchedCount || !update.modifiedCount) {
+        //     return res.status(500).send({ error: 'Ошибка базы данных' });
+        // } else {
+        return res.send({ ratingAvg: ratingAvg });
+        // }
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ error: err });
+    } finally {
+        await mongoClient.close();
+    }
+});
 
 module.exports = router;

@@ -174,6 +174,7 @@ const routes = [
                 next();
             }
         },
+        children: [],
         component: function () {
             return import('../views/Materials')
         },
@@ -259,13 +260,19 @@ const router = createRouter({
     history: createWebHistory(),
     routes,
     scrollBehavior: function(to, from, savedPosition) {
+        let position = {}
         if (to.hash) {
-            // return {selector: to.hash}
-            // Or for Vue 3:
-            return {el: to.hash}
+            position = {
+                selector : to.hash
+            };
         } else {
-            return { x: 0, y: 0 }
+            position = {left : 0 , top : 0}
         }
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve(position)
+            }, 10)
+        })
     },
 })
 

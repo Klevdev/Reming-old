@@ -31,12 +31,17 @@ router.post("", async(req, res) => {
             items: req.body.items
         };
 
-        const collection = db.collection("studies");
+        let collection = db.collection("studies");
         const insert = await collection.insertOne(study);
 
         if (!insert) {
             return res.status(500).send({ error: 'Ошибка базы данных' });
         }
+
+        // if (user._id.toHexString() !== study.userId.toHexString()) {
+        collection = db.collection("materials");
+        await collection.updateOne({ _id: study.materialId }, { $inc: { views: 1 } });
+        //}
 
         return res.send({ ok: 1 });
 

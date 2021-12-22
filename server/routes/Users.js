@@ -35,7 +35,7 @@ router.post('/signup', async(req, res) => {
         do {
             tokenRaw = random();
             authToken = hash(tokenRaw, 'hex');
-        } while (!collection.find({ "auth.token": authToken }));
+        } while (!await collection.find({ "auth.token": authToken }));
 
         const timeStamp = Date.now() + 1000 * 60 * 60 * 48;
 
@@ -66,9 +66,9 @@ router.post('/login', async(req, res) => {
     try {
         await mongoClient.connect();
         const db = mongoClient.db('reming');
-        const users = db.collection("users");
+        let collection = db.collection("users");
 
-        const find = await users.findOne(query, { projection: { _id: 0, name: 1 } });
+        const find = await collection.findOne(query, { projection: { _id: 0, name: 1 } });
         if (!find) {
             return res.status(400).send({ error: "Неправильный логин или пароль" });
         }
@@ -77,11 +77,11 @@ router.post('/login', async(req, res) => {
         do {
             tokenRaw = random();
             authToken = hash(tokenRaw, 'hex');
-        } while (!users.find({ "auth.token": authToken }));
+        } while (!await collection.find({ "auth.token": authToken }));
 
         const timeStamp = Date.now() + 1000 * 60 * 60 * 48;
 
-        const update = await users.updateOne(query, {
+        const update = await collection.updateOne(query, {
             $set: {
                 auth: {
                     token: authToken,
@@ -256,7 +256,7 @@ router.post('/favorites/:materialId', async(req, res) => {
                 // }
             }
         });
-        if (!update) {
+        if (!update.matchedCount || !update.modifiedCount) {
             return res.status(500).send({ error: 'Ошибка базы данных' });
         }
 
