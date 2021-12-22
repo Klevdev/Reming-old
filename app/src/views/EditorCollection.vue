@@ -134,8 +134,9 @@
                 }
             }
             let userMaterials = await store.dispatch('request', {
-                path: `materials/personal`,
-                method: 'GET'
+                path: `materials`,
+                method: 'GET',
+                query: {private: 1}
             });
             if (userMaterials.hasOwnProperty('error')) {
                 router.back();

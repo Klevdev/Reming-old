@@ -126,8 +126,15 @@ export default createStore({
             /*
                 params = {method, path, body}
             */
+            let query = "";
+            if (params.query) {
+                query += "?";
+                for (const [key, value] of Object.entries(params.query)) {
+                    query += key + "=" + (Array.isArray(value) ? value.join('+') : value) + '&';
+                }
+            }
             context.state.loadingAnimationPlaying = true;
-            const uri = "http://localhost:3000/" + params.path;
+            const uri = "http://localhost:3000/" + params.path + query;
             try {
                 const res = await fetch(uri, {
                     method: params.method,
@@ -169,6 +176,7 @@ export default createStore({
             const res = await context.dispatch('request',{
                 path: `users/favorites`,
                 method: 'GET',
+                query: {short: 1}
             });
             if (!res.hasOwnProperty('error')) {
                 context.state.favorites = res;

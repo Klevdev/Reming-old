@@ -2,12 +2,6 @@
     <section class="page-wrapper">
         <div class="page-header">
             <h1>Библиотека</h1>
-    <!--        <div class="search">-->
-    <!--            <input v-model="searchText" type="text" placeholder="Поиск" @input="searchDropdownShown = !searchDropdownShown" />-->
-    <!--            <button type="button" @click="search"></button>-->
-    <!--            <div class="dropdown">-->
-    <!--            </div>-->
-    <!--        </div>-->
         </div>
         <div v-if="!materials.length" style="text-align: left">
             Здесь ничего нет :(
@@ -15,34 +9,38 @@
             ...но вы могли бы <router-link to="/editor">добавить</router-link> сюда что-то своё
         </div>
         <MaterialsList :materials="materials"/>
+        <Pagination v-if="pagesCount > 1" :pagesCount="pagesCount"/>
     </section>
 </template>
 
 <script>
     import store from "../store";
     import MaterialsList from "../components/MaterialsList";
+    import Pagination from "../components/Pagination";
 
     export default {
         name: "Library",
         components: {
             MaterialsList,
+            Pagination
         },
         data() {
             return {
                 materials: [],
-                // materialsShown: [],
-                // searchText: null,
-                // searchParams: [],
+                pagesCount: null,
             }
         },
         async created() {
-            this.materials = await store.dispatch('request', {
-                path: 'materials/public',
-                method: 'GET'
+            const res = await store.dispatch('request', {
+                path: 'materials',
+                method: 'GET',
             });
-            if (this.materials.hasOwnProperty('error')) {
+            if (res.hasOwnProperty('error')) {
                 this.materials = [];
                 this.$router.back();
+            } else {
+                this.materials = res.materials;
+                this.pagesCount = res.pagesCount;
             }
         },
         methods: {

@@ -295,8 +295,9 @@ router.get('/favorites', async(req, res) => {
             return res.status(200).send([]);
         }
 
+        const projection = req.query.short ? { _id: 1, title: 1 } : {};
         collection = db.collection("materials");
-        const materials = await collection.find({ _id: { $in: user.favorites } }, { projection: { _id: 1, title: 1 } }).toArray();
+        const materials = await collection.find({ _id: { $in: user.favorites } }, { projection: projection }).toArray();
         if (req.query.limit) {
             materials = materials.splice(0, req.query.limit);
         }

@@ -1,6 +1,6 @@
 <template>
     <section class="page-wrapper">
-        <div class="page-header">
+        <div class="section-header">
             <h1>Мои наборы</h1>
         </div>
         <div v-if="!materials.length" style="text-align: left">
@@ -8,6 +8,12 @@
             <router-link to="/editor">создать их</router-link>
         </div>
         <MaterialsList :materials="materials"/>
+        <div id="favorites" v-if="favorites.length">
+            <div class="section-header">
+                <h1>Избранное</h1>
+            </div>
+            <MaterialsList :materials="favorites"/>
+        </div>
     </section>
 </template>
 
@@ -24,16 +30,33 @@
         data() {
             return {
                 materials: [],
+                favorites: []
             }
         },
         async created() {
-            this.materials = await store.dispatch('request', {
-                path: 'materials/personal',
-                method: 'GET'
+            let res = await store.dispatch('request', {
+                path: 'materials',
+                method: 'GET',
+                query: {
+                    private: '1'
+                }
             });
-            if (this.materials.hasOwnProperty('error')) {
+            if (res.hasOwnProperty('error')) {
                 this.materials = [];
                 this.$router.back();
+            } else {
+                this.materials = res.materials;
+                this.pagesCount = res.pagesCount;
+            }
+            res = await store.dispatch('request', {
+                path: 'users/favorites',
+                method: 'GET',
+            });
+            if (res.hasOwnProperty('error')) {
+                this.favorites = [];
+                this.$router.back();
+            } else {
+                this.favorites = res;
             }
         }
     }
@@ -43,7 +66,7 @@
     .page-wrapper {
         margin-left: 250px;
     }
-    .page-header {
+    .section-header {
         display: flex;
         flex-direction: row;
         align-items: center;

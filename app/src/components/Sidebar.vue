@@ -7,7 +7,7 @@
         <ul class="sub-nav">
             <router-link v-for="item in recentMaterials" :to="'/materials/'+item._id">{{item.title}}</router-link>
         </ul>
-        <router-link class="menu-item favorites" :to="{name: 'MyMaterials'}">Избранное</router-link>
+        <router-link class="menu-item favorites" :to="{name: 'MyMaterials', hash: '#favorites'}">Избранное</router-link>
         <ul class="sub-nav">
             <router-link v-for="item in favorites" :to="'/materials/'+item._id">{{item.title}}</router-link>
         </ul>

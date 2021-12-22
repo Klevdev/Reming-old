@@ -81,14 +81,14 @@ const routes = [
         }
     },
     {
-        path: '/materials/public',
+        path: '/library',
         name: 'Library',
         // beforeEnter: (to, from, next) => {},
         component: function () {
             return import('../views/Library')
         },
         meta: {
-            title: 'Мои наборы'
+            title: 'Библиотека'
         }
     },
     {
@@ -156,11 +156,11 @@ const routes = [
             return import('../views/Editor')
         },
         meta: {
-            title: 'Конструктор материалов'
+            title: 'Конструктор'
         }
     },
     {
-        path: '/materials/personal',
+        path: '/mymaterials',
         name: 'MyMaterials',
         beforeEnter: (to, from, next) => {
             if (!store.state.userLoggedIn) {
@@ -257,7 +257,16 @@ const routes = [
 
 const router = createRouter({
     history: createWebHistory(),
-    routes
+    routes,
+    scrollBehavior: function(to, from, savedPosition) {
+        if (to.hash) {
+            // return {selector: to.hash}
+            // Or for Vue 3:
+            return {el: to.hash}
+        } else {
+            return { x: 0, y: 0 }
+        }
+    },
 })
 
 router.beforeEach((to, from, next) => {
