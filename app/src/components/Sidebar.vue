@@ -2,6 +2,7 @@
     <nav :class="collapsed ? 'open' : 'collapsed'">
 <!--        <router-link to="/">Главная</router-link>-->
         <router-link class="menu-item library" :to="{name: 'Library'}">Библиотека</router-link>
+        <router-link class="menu-item search" :to="{name: 'Search'}">Поиск</router-link>
         <router-link class="menu-item editor" :to="{name: 'Editor'}">Конструктор</router-link>
         <router-link class="menu-item mymaterials" :to="{name: 'MyMaterials'}">Мои наборы</router-link>
         <ul class="sub-nav">
@@ -102,6 +103,9 @@
 
     .menu-item.library {
         background-image: url("../assets/icons/book.svg");
+    }
+    .menu-item.search {
+        background-image: url("../assets/icons/search-black.svg");
     }
     .menu-item.editor {
         background-image: url("../assets/icons/edit-black.svg");

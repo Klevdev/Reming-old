@@ -60,7 +60,6 @@ router.get("/:id", async(req, res) => {
 });
 
 router.get("", async(req, res) => {
-    // console.log(req.query);
     try {
         await mongoClient.connect();
         const db = mongoClient.db("reming");
@@ -92,7 +91,7 @@ router.get("", async(req, res) => {
 
         // TODO: Поиск по именам пользователей
         if (req.query.q) {
-            const qFields = req.query.qFields ? req.query.qFields.split(' ') : ['title', 'description'];
+            const qFields = req.query.qFields ? req.query.qFields.split(' ') : ['title'];
             query.$or = [];
             qFields.forEach(field => {
                 if (['title', 'description'].indexOf(field) === -1) {
@@ -120,15 +119,15 @@ router.get("", async(req, res) => {
         }
 
         let sort;
-        if (req.query.sort && ['tc', 'rt'].indexOf(req.query.sort)) {
-            sort = { 'tc': 'timeCreated', 'rt': 'rating' }[req.query.sort];
+        if (req.query.sort && ['tc', 'rt', 'vws'].indexOf(req.query.sort)) {
+            sort = { 'tc': 'timeCreated', 'rt': 'ratingAvg', 'vws': 'views' }[req.query.sort];
         } else {
             sort = 'timeCreated';
         }
-        const desc = !!req.query.desc ? -1 : 1;
+        const desc = (!!req.query.desc && req.query.desc !== 'false') ? -1 : 1;
 
         const collection = db.collection("materials");
-        const pagesCount = await collection.countDocuments().then(res => Math.ceil(res / materialsPerPage));
+        const pagesCount = await collection.countDocuments(query).then(res => Math.ceil(res / materialsPerPage));
         const materials = await collection.find(query)
             .sort({
                 [sort]: desc
@@ -136,7 +135,6 @@ router.get("", async(req, res) => {
             .skip(currentPage > 0 ? ((currentPage - 1) * materialsPerPage) : 0)
             .limit(materialsPerPage)
             .toArray();
-
         return res.send({ pagesCount: pagesCount, materials: materials });
     } catch (err) {
         console.error(err);

@@ -1,16 +1,18 @@
 <template>
-    <div v-if="!userLoggedIn" class="guest-panel" >
-        <router-link to="/login">Войти</router-link>
-        <router-link to="/signup">Зарегистрироваться</router-link>
-    </div>
-    <div v-if="userLoggedIn" class="user-panel" :class="{'show-dropdown': !showDropDown}" @click="showDropDown = !showDropDown" >
-        <img id="user-avatar" src="../assets/icons/user.svg" alt="default avatar">
-        <div id="user-name">{{userName}}</div>
-<!--        <button id="toggle-user-dropdown" :class="{arrowUp: showDropDown}"></button>-->
-    </div>
-    <div v-if="userLoggedIn && showDropDown" class="dropdown">
-        <router-link to="/mystats">Моя статистика</router-link>
-        <div id="logout" @click="userLogOut">Выйти</div>
+    <div>
+        <div v-if="!userLoggedIn" class="guest-panel" >
+            <router-link to="/login">Войти</router-link>
+            <router-link to="/signup">Зарегистрироваться</router-link>
+        </div>
+        <div v-if="userLoggedIn" class="user-panel" :class="{'show-dropdown': !showDropDown}" @click="showDropDown = !showDropDown" >
+            <img id="user-avatar" src="../assets/icons/user.svg" alt="default avatar">
+            <div id="user-name">{{userName}}</div>
+    <!--        <button id="toggle-user-dropdown" :class="{arrowUp: showDropDown}"></button>-->
+        </div>
+        <div v-if="userLoggedIn && showDropDown" class="dropdown">
+            <router-link to="/mystats">Моя статистика</router-link>
+            <div id="logout" @click="userLogOut">Выйти</div>
+        </div>
     </div>
 </template>
 
@@ -114,8 +116,6 @@
         position: absolute;
         display: block;
         width: $panel-width;
-        top: 55px;
-        right: 27.5px;
         margin: 0;
         list-style: none;
         border-radius: 0 0 3px 3px;

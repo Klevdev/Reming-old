@@ -92,6 +92,17 @@ const routes = [
         }
     },
     {
+        path: '/search',
+        name: 'Search',
+        // beforeEnter: (to, from, next) => {},
+        component: function () {
+            return import('../views/Search')
+        },
+        meta: {
+            title: 'Поиск'
+        }
+    },
+    {
         path: '/editor/set/:id?',
         name: 'EditorSet',
         props: true,

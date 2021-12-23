@@ -40,6 +40,7 @@
         gap: 3px;
         user-select: none;
         &::before {
+            background-color: #FFFFFF;
             content: '';
             display: inline-block;
             width: .9em;

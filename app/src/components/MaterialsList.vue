@@ -9,6 +9,7 @@
                 <router-link v-if="material.type === 'set'" class="btn start-btn" :to="'/study/'+material._id" />
             </router-link>
         </div>
+            <router-link v-if="Object.keys(actionOnLast).length !== 0" :to="actionOnLast.route">{{actionOnLast.text}}</router-link>
     </section>
 </template>
 
@@ -19,6 +20,10 @@
             materials: {
                 type: Array,
                 default: []
+            },
+            actionOnLast: {
+                type: Object,// {text: 'Найти больше', route: {name: 'Search', query: {}, params: {}}}
+                default: {}
             }
         },
         data() {
@@ -31,9 +36,11 @@
 
 <style scoped lang="scss">
     .materials-wrapper {
+        max-width: 75vw;
         padding: 20px 0;
-        display: grid;
-        grid-template-columns: repeat(5, 200px);
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
         /*grid-auto-rows: 200px;*/
         column-gap: 20px;
         place-items: center;
