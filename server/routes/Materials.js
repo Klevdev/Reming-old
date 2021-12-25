@@ -85,7 +85,25 @@ router.get("", async(req, res) => {
             //     query._id = { $in: ids };
             // }
         } else {
-            query.isPublic = true;
+            if (req.query.admin) {
+                let authToken = req.headers['x-access-token'];
+                if (authToken === '' || authToken === undefined || authToken === null) {
+                    return res.status(401).send({ error: 'Отсутствует токен' });
+                }
+                let collection = db.collection("users");
+                let user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1, isAdministrator: 1 } });
+                if (!user) {
+                    return res.status(401).send({ error: 'Токен недействителен' });
+                }
+                if (user.auth.validThru < Date.now()) {
+                    return res.status(401).send({ error: "Время сеанса истекло" });
+                }
+                if (!user.isAdministrator) {
+                    return res.status(403).send({ error: 'У вас нет доступа к данной странице' });
+                }
+            } else {
+                query.isPublic = true;
+            }
         }
 
 
@@ -112,7 +130,7 @@ router.get("", async(req, res) => {
             query.type = { $in: types };
         }
 
-        const materialsPerPage = req.query.perPage ? parseInt(req.query.perPage) : 10;
+        const materialsPerPage = req.query.perPage ? parseInt(req.query.perPage) : (req.query.admin ? 9999 : 10);
         const currentPage = req.query.page ? parseInt(req.query.page) : 1;
         if (isNaN(materialsPerPage) || isNaN(currentPage)) {
             return res.status(400).send({ error: "Неверно указана пагинация" })

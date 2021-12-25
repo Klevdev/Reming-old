@@ -63,7 +63,7 @@
         text-align: left;
         box-shadow: 0 10px 25px #2c3e5033, 0 20px 20px #2c3e5011;
         border-radius: 0;
-        width: 200px;
+        width: 220px;
         height: 150px;
         background-color: #FAFAFA;
         transition: border .2s, box-shadow .2s;
@@ -92,14 +92,6 @@
         }
     }
 
-    .edit-btn {
-        background-image: url("../assets/icons/elipsis-white.svg");
-        background-color: #4285F4;
-        background-size: 20px 20px;
-        &:hover {
-             background-color: #A1C4FD;
-        }
-    }
 
     .btn {
         opacity: 0;
@@ -109,7 +101,7 @@
         width: 35px;
         height: 35px;
         position: relative;
-        left: 135px;
+        left: 155px;
         bottom: 30px;
         color: white;
         border-radius: 50%;

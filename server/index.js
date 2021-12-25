@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+const path = require('path');
 const app = express();
 
 app.use(express.json());
@@ -12,6 +13,11 @@ app.use(cors({
 //     console.log(req.body);
 //     next();
 // });
+
+app.use(express.static('administrative'));
+app.get('/administrative', (req, res) => {
+    res.sendFile(path.join(__dirname, '/administrative/index.html'));
+});
 
 /* - - - Роуты: - - - */
 app.use("/users", require("./routes/Users"));

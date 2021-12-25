@@ -140,7 +140,7 @@
                 path: `materials`,
                 method: 'GET',
                 query: {private: 1}
-            });
+            }).then(res => res.materials);
             if (userMaterials.hasOwnProperty('error')) {
                 router.back();
             } else {

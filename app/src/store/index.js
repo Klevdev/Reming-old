@@ -123,9 +123,6 @@ export default createStore({
     },
     actions: {
         async request(context, params) {
-            /*
-                params = {method, path, body}
-            */
             let query = "";
             if (params.query) {
                 query += "?";
@@ -153,8 +150,7 @@ export default createStore({
                         message: response.error
                     });
                     if (res.status === 401) {
-                        // я не знаю как мне лучше сделать это при текущем устройстве
-                        // context.commit('userLogOut');
+                        context.commit('userLogout');
                     }
                 }
                 context.state.loadingAnimationPlaying = false;

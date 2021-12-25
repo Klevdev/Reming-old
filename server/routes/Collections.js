@@ -188,7 +188,7 @@ router.delete("/:id", async(req, res) => {
         const db = mongoClient.db('reming');
         let collection = db.collection("users");
 
-        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1 } });
+        const user = await collection.findOne({ 'auth.token': authToken }, { projection: { _id: 1, auth: 1, isAdministrator: 1 } });
 
         if (!user) {
             return res.status(401).send({ error: 'Отсутствует токен' });
@@ -202,7 +202,7 @@ router.delete("/:id", async(req, res) => {
 
         collection = db.collection("materials");
         const set = await collection.findOne({ _id: collectionId }, { projection: { _id: 0, isPublic: 1, userId: 1 } });
-        if (set.userId.toHexString() !== user._id.toHexString()) {
+        if (set.userId.toHexString() !== user._id.toHexString() && !user.isAdministrator) {
             return res.status(403).send({ error: "У вас нет доступа к этому набору" });
         }
 

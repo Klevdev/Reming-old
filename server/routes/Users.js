@@ -68,8 +68,11 @@ router.post('/login', async(req, res) => {
         const db = mongoClient.db('reming');
         let collection = db.collection("users");
 
-        const find = await collection.findOne(query, { projection: { _id: 0, name: 1 } });
+        const find = await collection.findOne(query, { projection: { _id: 0, name: 1, isAdministrator: 1 } });
         if (!find) {
+            return res.status(400).send({ error: "Неправильный логин или пароль" });
+        }
+        if (req.query.admin && !find.isAdministrator) {
             return res.status(400).send({ error: "Неправильный логин или пароль" });
         }
         let tokenRaw;

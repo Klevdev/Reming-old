@@ -1,0 +1,30 @@
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #F3F3F3;
+    color: #2c3e50;
+    padding: 25px 10px;
+}
+
+table {
+    background-color: #FAFAFA;
+    text-align: left;
+    overflow: scroll;
+}
+
+th,
+td {
+    background-color: #FFF;
+    border: 1px solid #DDD;
+    padding: .3em;
+}
+
+.btn {
+    font: inherit;
+    color: #FFF;
+    background-color: #4285F4;
+}
+
+.btn:hover {
+    cursor: pointer;
+    background-color: #A1C4FD;
+}
